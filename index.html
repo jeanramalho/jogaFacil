@@ -8,37 +8,49 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <!-- index.js -->
+  <!-- Script de login -->
   <script defer src="./index.js"></script>
   <style>
+    /* Define o background com a imagem e aplica blur para destacar o formulário */
     body {
       background: url('./Assets/background.png') no-repeat center center fixed;
       background-size: cover;
     }
     .backdrop {
       backdrop-filter: blur(8px);
-      background-color: rgba(0, 0, 0, 0.5); /* Sobreposição escura */
+      background-color: rgba(0, 0, 0, 0.5);
     }
   </style>
 </head>
 <body class="min-h-screen flex items-center justify-center">
+  <!-- Container com efeito de blur para o conteúdo -->
   <div class="backdrop p-8 rounded-lg shadow-lg w-full max-w-md">
+    <!-- Logo centralizada -->
     <div class="flex justify-center mb-4">
       <img src="./Assets/logo.svg" alt="Logo" class="h-16">
     </div>
     <h1 class="text-center text-white text-2xl font-bold mb-6">Login</h1>
+    <!-- Formulário de login -->
     <form id="loginForm" class="space-y-4">
       <div>
         <label for="username" class="block text-white">Nome de Usuário</label>
-        <input type="text" id="username" name="username" required class="w-full p-2 rounded bg-gray-800 text-white border border-gray-600">
+        <input type="text" id="username" name="username" required
+               class="w-full p-2 rounded bg-gray-800 text-white border border-gray-600">
       </div>
       <div>
         <label for="cell" class="block text-white">Telefone</label>
-        <input type="text" id="cell" name="cell" required class="w-full p-2 rounded bg-gray-800 text-white border border-gray-600" placeholder="(XX) XXXXX-XXXX">
+        <input type="text" id="cell" name="cell" required
+               class="w-full p-2 rounded bg-gray-800 text-white border border-gray-600"
+               placeholder="(XX) XXXXX-XXXX">
       </div>
-      <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold p-2 rounded">Entrar</button>
+      <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold p-2 rounded">
+        Entrar
+      </button>
     </form>
-    <p id="errorMsg" class="mt-4 text-red-500 text-center hidden">Erro: Usuário não encontrado ou dados incorretos.</p>
+    <!-- Mensagem de erro (oculta por padrão) -->
+    <p id="errorMsg" class="mt-4 text-red-500 text-center hidden">
+      Erro: Usuário não encontrado ou dados incorretos.
+    </p>
   </div>
 </body>
 </html>
