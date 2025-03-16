@@ -4,33 +4,66 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Joga Fácil - Home</title>
+  
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Script de autenticação: impede acesso sem login -->
+  
+  <!-- Autenticação -->
   <script src="../../security/auth.js"></script>
+  
+  <!-- Script principal -->
+  <script src="./index.js" defer></script>
+
   <style>
-    /* Define o background com a imagem e aplica blur para destacar o conteúdo */
+    /* Fundo da página */
     body {
       background: url('../../Assets/background.png') no-repeat center center fixed;
       background-size: cover;
     }
-    /* Classe para efeito de blur */
+
+    /* Efeito de desfoque no header */
     .backdrop-blur {
       backdrop-filter: blur(8px);
       background-color: rgba(0, 0, 0, 0.5);
     }
+
+    /* Ajustes do dropdown */
+    #userDropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: 160px;
+      background-color: rgba(20, 20, 20, 0.9);
+      border-radius: 8px;
+      overflow: hidden;
+      display: none;
+      z-index: 50;
+    }
+
+    #userDropdown ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #userDropdown li {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    #userDropdown li:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
   </style>
 </head>
 <body class="min-h-screen text-white">
-  <!-- Header fixo com logo centralizada e menu hambúrguer à direita -->
-  <header class="fixed top-0 left-0 right-0 z-40 flex items-center justify-between p-4 backdrop-blur">
-    <!-- Espaço reservado à esquerda -->
+
+  <!-- Header fixo -->
+  <header class="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 py-4 backdrop-blur shadow-md">
     <div class="w-8"></div>
-    <!-- Logo centralizada -->
     <div class="flex-grow text-center">
       <img src="../../Assets/logo.svg" alt="Logo" class="h-10 inline-block">
     </div>
-    <!-- Botão de menu hambúrguer à direita -->
     <button id="hamburgerBtn" class="text-white focus:outline-none">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -38,44 +71,46 @@
     </button>
   </header>
 
-  <!-- Sidebar: menu lateral fixo à esquerda com z-index superior ao header -->
-  <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-black bg-opacity-70 backdrop-blur transform -translate-x-full transition-transform duration-300 z-50">
-    <!-- Cabeçalho do sidebar com avatar e nome do usuário -->
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-gray-900 bg-opacity-90 backdrop-blur transform -translate-x-full transition-transform duration-300 z-50 shadow-lg">
+    <!-- Cabeçalho da Sidebar -->
     <div class="p-4 border-b border-gray-700 flex items-center">
-      <!-- Avatar padrão (substitua o caminho se necessário) -->
-      <img src="../../Assets/avatar.png" alt="Avatar" class="h-10 w-10 rounded-full mr-3">
-      <div class="relative">
-        <!-- Nome do usuário: preenchido via JavaScript (do auth.js) -->
-        <span id="sidebarUsername" class="cursor-pointer font-semibold"></span>
-        <!-- Dropdown com opções -->
-        <div id="userDropdown" class="absolute left-0 mt-2 w-40 bg-gray-800 rounded shadow-lg hidden">
+      <img id="userAvatar" src="https://www.gravatar.com/avatar/?d=mp" alt="Avatar" class="h-10 w-10 rounded-full mr-3">
+      <div class="relative w-full">
+        <button id="userMenuBtn" class="flex items-center justify-between w-full text-left">
+          <span id="playerName" class="font-semibold">Carregando...</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <!-- Dropdown do usuário -->
+        <div id="userDropdown">
           <ul>
-            <!-- Opção "Gerenciar": aparece se o usuário for administrador -->
-            <li id="admOption" class="px-4 py-2 hover:bg-gray-700 cursor-pointer hidden">Gerenciar</li>
-            <!-- Opção "Sair": encerra a sessão -->
-            <li id="logoutOption" class="px-4 py-2 hover:bg-gray-700 cursor-pointer">Sair</li>
+            <li id="admOption" class="hidden">Gerenciar</li>
+            <li id="logoutOption" class="text-red-400 hover:bg-red-700">Sair</li>
           </ul>
         </div>
       </div>
     </div>
-    <!-- Menu de navegação (por enquanto vazio, poderá ser expandido futuramente) -->
+    
+    <!-- Menu de Navegação -->
     <nav class="p-4">
       <ul>
-        <li class="mb-2">Menu Item 1</li>
-        <li class="mb-2">Menu Item 2</li>
+        <li><a href="../../Pages/Home/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">🏠 Home</a></li>
+        <li><a href="../../Pages/Presenca/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">✅ Confirmar Presença</a></li>
+        <li><a href="../../Pages/Cartola/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">⚽ Cartola</a></li>
+        <li><a href="../../Pages/Campeonatos/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">🏆 Campeonatos</a></li>
+        <li><a href="../../Pages/Financeiro/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">💰 Financeiro</a></li>
       </ul>
     </nav>
   </aside>
 
-  <!-- Conteúdo principal da página -->
+  <!-- Conteúdo Principal -->
   <main class="pt-16 p-4">
     <div id="mainContent">
-      <!-- Div principal para inclusão futura de elementos -->
       <p>Conteúdo principal da página home</p>
     </div>
   </main>
 
-  <!-- Inclusão do script de comportamento da página home -->
-  <script src="./index.js"></script>
 </body>
 </html>

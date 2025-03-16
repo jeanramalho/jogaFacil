@@ -1,54 +1,66 @@
-// pages/home/index.js
-
-// Seleciona os elementos do DOM
+// Seleção de elementos
 const hamburgerBtn = document.getElementById('hamburgerBtn');
 const sidebar = document.getElementById('sidebar');
-const sidebarUsername = document.getElementById('sidebarUsername');
+const playerName = document.getElementById('playerName');
+const userAvatar = document.getElementById('userAvatar');
 const userDropdown = document.getElementById('userDropdown');
+const userMenuBtn = document.getElementById('userMenuBtn');
 const logoutOption = document.getElementById('logoutOption');
 const admOption = document.getElementById('admOption');
 
-// Recupera os dados do usuário, definidos no auth.js e armazenados em window.currentUser
+// Recupera usuário do auth.js
 const currentUser = window.currentUser || {};
-sidebarUsername.textContent = currentUser.username || 'Jogador';
 
-// Se o usuário tiver a permissão de administrador, exibe a opção "Gerenciar"
-if (currentUser.adm === true) {
+// Define nome do jogador
+playerName.textContent = currentUser.jogador || 'Jogador';
+
+// Exibe opção "Gerenciar" se for admin
+if (currentUser.adm) {
   admOption.classList.remove('hidden');
 }
 
-// Função para alternar a exibição do sidebar
+// Define avatar do usuário com Gravatar
+if (currentUser.email) {
+  const gravatarUrl = `https://www.gravatar.com/avatar/${md5(currentUser.email.trim().toLowerCase())}?d=mp`;
+  userAvatar.src = gravatarUrl;
+}
+
+// Alterna sidebar
 function toggleSidebar() {
   sidebar.classList.toggle('-translate-x-full');
 }
 
-// Abre/fecha o sidebar ao clicar no botão hambúrguer
+// Fecha sidebar ao clicar fora
+document.addEventListener('click', (event) => {
+  if (!sidebar.contains(event.target) && !hamburgerBtn.contains(event.target)) {
+    sidebar.classList.add('-translate-x-full');
+  }
+});
+
+// Clique no botão do menu hamburguer
 hamburgerBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   toggleSidebar();
 });
 
-// Fecha o sidebar e o dropdown ao clicar fora deles
-document.addEventListener('click', (e) => {
-  if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
-    sidebar.classList.add('-translate-x-full');
-    userDropdown.classList.add('hidden');
-  }
-});
-
-// Alterna a exibição do dropdown ao clicar no nome do usuário
-sidebarUsername.addEventListener('click', (e) => {
+// Alternar dropdown do usuário
+userMenuBtn.addEventListener('click', (e) => {
   e.stopPropagation();
-  userDropdown.classList.toggle('hidden');
+  userDropdown.style.display = userDropdown.style.display === 'none' ? 'block' : 'none';
 });
 
-// Opção "Sair": remove os dados do usuário e redireciona para a página de login
+// Fecha dropdown ao clicar fora
+document.addEventListener('click', () => {
+  userDropdown.style.display = 'none';
+});
+
+// Logout
 logoutOption.addEventListener('click', () => {
   localStorage.removeItem('user');
   window.location.href = '../../index.html';
 });
 
-// Opção "Gerenciar": redireciona para a página de gerenciamento (./pages/adm/index.html)
+// Redirecionar admin
 admOption.addEventListener('click', () => {
-  window.location.href = '../../pages/adm/index.html';
+  window.location.href = '../../Pages/Adm/index.html';
 });
