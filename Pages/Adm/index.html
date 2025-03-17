@@ -42,7 +42,7 @@
 
   <!-- Sidebar com cabeçalho de usuário -->
   <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-gray-900 bg-opacity-90 backdrop-blur transform -translate-x-full transition-transform duration-300 z-50">
-    <!-- Cabeçalho da sidebar: Avatar e nome com dropdown -->
+    <!-- Cabeçalho da sidebar: Avatar, nome e dropdown -->
     <div class="p-4 border-b border-gray-700 flex items-center">
       <img id="userAvatarSidebar" src="https://www.gravatar.com/avatar/?d=mp" alt="Avatar" class="h-10 w-10 rounded-full mr-3">
       <div class="relative w-full">
@@ -90,7 +90,7 @@
     
     <!-- View de Gerenciamento: área de gerenciamento (inicialmente oculta) -->
     <div id="managementView" class="hidden w-full max-w-4xl mt-8">
-      <!-- Cabeçalho da view com botão de voltar e título -->
+      <!-- Cabeçalho com botão de voltar (ícone) e título -->
       <div class="flex items-center mb-4">
         <button id="backBtn" class="bg-gray-700 p-2 rounded hover:bg-gray-600 mr-4">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -109,7 +109,7 @@
       <div id="formSection" class="hidden mb-4 bg-gray-800 p-4 rounded">
         <h3 class="text-xl font-semibold mb-2" id="formTitle">Novo Jogador</h3>
         <form id="playerForm" class="space-y-3">
-          <!-- Campo oculto para id (edição) -->
+          <!-- Campo oculto para armazenar o id (edição) -->
           <input type="hidden" id="playerId">
           <div>
             <label class="block">Nome do Jogador</label>
@@ -143,11 +143,18 @@
       </div>
       
       <!-- Campo de busca -->
-      <div class="mb-4">
+      <div class="mb-2">
         <input type="text" id="searchInput" placeholder="Buscar por nome ou telefone" class="w-full p-2 rounded bg-gray-700" />
       </div>
       
-      <!-- Tabela com lista de jogadores (altura fixa com scroll) -->
+      <!-- Filtros para peladas -->
+      <div id="filterButtons" class="mb-4 flex space-x-2">
+        <button id="filterTer" class="px-3 py-1 bg-gray-700 rounded text-sm">Ter</button>
+        <button id="filterQuin" class="px-3 py-1 bg-gray-700 rounded text-sm">Quin</button>
+        <button id="filterDom" class="px-3 py-1 bg-gray-700 rounded text-sm">Dom</button>
+      </div>
+      
+      <!-- Tabela com a lista de jogadores (altura fixa com scroll) -->
       <div id="playersTableContainer" class="mb-6 overflow-y-auto max-h-96">
         <table class="w-full text-left border-collapse">
           <thead class="bg-gray-800">

@@ -20,6 +20,9 @@ const toggleFormBtn = document.getElementById('toggleFormBtn');
 const formSection = document.getElementById('formSection');
 
 const searchInput = document.getElementById('searchInput');
+const filterTerBtn = document.getElementById('filterTer');
+const filterQuinBtn = document.getElementById('filterQuin');
+const filterDomBtn = document.getElementById('filterDom');
 
 const playersTableBody = document.getElementById('playersTableBody');
 const playerForm = document.getElementById('playerForm');
@@ -37,6 +40,11 @@ const inputQuinta = document.getElementById('inputQuinta');
 const inputDomingo = document.getElementById('inputDomingo');
 
 // ===========================================
+// Variáveis para filtros
+// ===========================================
+let filterTer = false, filterQuin = false, filterDom = false;
+
+// ===========================================
 // Navegação entre views
 // ===========================================
 function showManagementView() {
@@ -44,12 +52,10 @@ function showManagementView() {
   managementView.classList.remove('hidden');
   loadPlayers();
 }
-
 function showCardsView() {
   managementView.classList.add('hidden');
   cardsView.classList.remove('hidden');
 }
-
 cardPlayers.addEventListener('click', showManagementView);
 backBtn.addEventListener('click', showCardsView);
 
@@ -80,27 +86,61 @@ toggleFormBtn.addEventListener('click', () => {
 });
 
 // ===========================================
-// Função para carregar jogadores com busca
+// Eventos para filtros
+// ===========================================
+filterTerBtn.addEventListener('click', () => {
+  filterTer = !filterTer;
+  filterTerBtn.classList.toggle('bg-blue-600', filterTer);
+  loadPlayers();
+});
+filterQuinBtn.addEventListener('click', () => {
+  filterQuin = !filterQuin;
+  filterQuinBtn.classList.toggle('bg-blue-600', filterQuin);
+  loadPlayers();
+});
+filterDomBtn.addEventListener('click', () => {
+  filterDom = !filterDom;
+  filterDomBtn.classList.toggle('bg-blue-600', filterDom);
+  loadPlayers();
+});
+
+// ===========================================
+// Função para carregar jogadores e aplicar filtros
 // ===========================================
 async function loadPlayers() {
-  const search = searchInput.value.trim();
-  let query = supabaseClient.from('jogadores').select('*').order('id', { ascending: true });
-  if (search) {
-    // Filtra por nome ou telefone (ilike para case-insensitive)
-    query = query.or(`jogador.ilike.%${search}%,cell.ilike.%${search}%`);
-  }
-  const { data: players, error } = await query;
+  const search = searchInput.value.trim().toLowerCase();
+  const { data: players, error } = await supabaseClient
+    .from('jogadores')
+    .select('*')
+    .order('id', { ascending: true });
   if (error) {
     console.error('Erro ao carregar jogadores:', error);
     return;
   }
+  // Filtra os jogadores no client-side
+  let filtered = players;
+  if (search) {
+    filtered = filtered.filter(player => 
+      player.jogador.toLowerCase().includes(search) || 
+      player.cell.includes(search)
+    );
+  }
+  if (filterTer || filterQuin || filterDom) {
+    filtered = filtered.filter(player => {
+      return (filterTer ? player.fut_terca : false) || 
+             (filterQuin ? player.fut_quinta : false) || 
+             (filterDom ? player.fut_domingo : false);
+    });
+  }
+  
+  // Preenche a tabela
   playersTableBody.innerHTML = '';
-  players.forEach(player => {
+  filtered.forEach(player => {
     let peladasArr = [];
     if (player.fut_terca) peladasArr.push("ter");
     if (player.fut_quinta) peladasArr.push("quin");
     if (player.fut_domingo) peladasArr.push("dom");
-    let peladas = peladasArr.join(', ');
+    const peladas = peladasArr.join(', ');
     const row = document.createElement('tr');
     row.classList.add('border-b', 'border-gray-700');
     row.innerHTML = `
@@ -250,7 +290,9 @@ document.addEventListener('click', () => {
   userDropdown.classList.add('hidden');
 });
 
-// Evento para logout
+// ===========================================
+// Logout
+// ===========================================
 const logoutOption = document.getElementById('logoutOption');
 logoutOption.addEventListener('click', () => {
   localStorage.removeItem('user');
