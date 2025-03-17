@@ -86,6 +86,18 @@
           <span class="text-lg font-semibold">Gerenciar Jogadores</span>
         </div>
       </div>
+
+      <!-- Novo Card: Criar Pelada -->
+    <div id="cardPelada" class="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 flex items-center justify-center mt-4">
+      <div class="flex flex-col items-center">
+        <!-- Ícone para criar (exemplo: um sinal de +) -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <span class="text-lg font-semibold">Criar Pelada</span>
+      </div>
+    </div>
+
     </div>
     
     <!-- View de Gerenciamento: área de gerenciamento (inicialmente oculta) -->
@@ -171,6 +183,86 @@
         </table>
       </div>
     </div>
+
+    <!-- Nova View: Gerenciamento de Peladas -->
+<div id="peladaView" class="hidden w-full max-w-4xl mt-8">
+  <!-- Cabeçalho com botão de voltar (ícone) e título -->
+  <div class="flex items-center mb-4">
+    <button id="backPeladaBtn" class="bg-gray-700 p-2 rounded hover:bg-gray-600 mr-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+    <h2 class="text-2xl font-bold">Gerenciamento de Peladas</h2>
+  </div>
+  
+  <!-- Botão para exibir/ocultar o formulário de criação/edição de pelada -->
+  <button id="togglePeladaFormBtn" class="mb-4 bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">
+    Criar Nova Pelada
+  </button>
+  
+  <!-- Seção do formulário de pelada (oculta por padrão) -->
+  <div id="peladaFormSection" class="hidden mb-4 bg-gray-800 p-4 rounded">
+    <h3 class="text-xl font-semibold mb-2" id="peladaFormTitle">Nova Pelada</h3>
+    <form id="peladaForm" class="space-y-3">
+      <!-- Campo oculto para armazenar o id da pelada (modo edição) -->
+      <input type="hidden" id="peladaId">
+      <!-- Seleção do dia da pelada (determina a tabela de destino) -->
+      <div>
+        <label class="block mb-1">Dia da Pelada:</label>
+        <div class="flex space-x-4">
+          <label class="flex items-center">
+            <input type="radio" name="peladaDay" value="dom" required class="mr-1"> Domingo
+          </label>
+          <label class="flex items-center">
+            <input type="radio" name="peladaDay" value="ter" class="mr-1"> Terça-Feira
+          </label>
+          <label class="flex items-center">
+            <input type="radio" name="peladaDay" value="quin" class="mr-1"> Quinta-Feira
+          </label>
+        </div>
+      </div>
+      <div>
+        <label class="block">Data da Pelada</label>
+        <input type="date" id="inputDataPelada" class="w-full p-2 rounded bg-gray-700" required>
+      </div>
+      <div>
+        <label class="block">Horário</label>
+        <input type="time" id="inputHoraPelada" class="w-full p-2 rounded bg-gray-700" required>
+      </div>
+      <div class="flex space-x-4">
+        <button type="submit" class="bg-green-600 px-4 py-2 rounded hover:bg-green-700">Salvar</button>
+        <button type="button" id="cancelPeladaForm" class="bg-red-600 px-4 py-2 rounded hover:bg-red-700">Cancelar</button>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Filtros para peladas -->
+  <div id="peladaFilterButtons" class="mb-4 flex space-x-2">
+    <button id="filterDomPelada" class="px-3 py-1 bg-gray-700 rounded text-sm">Domingo</button>
+    <button id="filterTerPelada" class="px-3 py-1 bg-gray-700 rounded text-sm">Terça-Feira</button>
+    <button id="filterQuinPelada" class="px-3 py-1 bg-gray-700 rounded text-sm">Quinta-Feira</button>
+  </div>
+  
+  <!-- Tabela com a lista de peladas (altura fixa com scroll) -->
+  <div id="peladaTableContainer" class="mb-6 overflow-y-auto max-h-96">
+    <table class="w-full text-left border-collapse">
+      <thead class="bg-gray-800">
+        <tr>
+          <th class="p-2 border border-gray-700">Dia</th>
+          <th class="p-2 border border-gray-700">Data</th>
+          <th class="p-2 border border-gray-700">Horário</th>
+          <th class="p-2 border border-gray-700">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="peladaTableBody">
+        <!-- Linhas serão preenchidas via JavaScript com dados do Supabase -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+    
   </main>
 </body>
 </html>
