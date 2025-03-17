@@ -1,99 +1,258 @@
-// Configuração do Supabase
+// =====================================================
+// Configuração do Supabase (credenciais do projeto)
+// =====================================================
 const SUPABASE_URL = "https://kmunojpmxnrepmzgxqmo.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttdW5vanBteG5yZXBtemd4cW1vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxMzExOTksImV4cCI6MjA1NzcwNzE5OX0.pXDLJnT4Pgf1eZrThAe_7XpPQ6w5wTYFX_jbb2SltwA";
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttdW5vanBteG5yZXBtemd4cW1vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxMzExOTksImV4cCI6MjA1NzcwNzE5OX0.pXDLJnT4Pgf1eZrThAe_7XpPQ6w5wTYFX_jbb2SltwA";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Elementos do DOM
-const managePlayers = document.getElementById("managePlayers");
-const playerModal = document.getElementById("playerModal");
-const closeModal = document.getElementById("closeModal");
-const playerList = document.getElementById("playerList");
-const addPlayerBtn = document.getElementById("addPlayerBtn");
+// ===========================================
+// Seleção de elementos do DOM
+// ===========================================
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const sidebar = document.getElementById('sidebar');
 
-// Abrir modal ao clicar no card
-managePlayers.addEventListener("click", async () => {
-    await loadPlayers();
-    playerModal.classList.remove("hidden");
+const cardsView = document.getElementById('cardsView');
+const managementView = document.getElementById('managementView');
+const cardPlayers = document.getElementById('cardPlayers');
+const backBtn = document.getElementById('backBtn');
+
+const toggleFormBtn = document.getElementById('toggleFormBtn');
+const formSection = document.getElementById('formSection');
+
+const searchInput = document.getElementById('searchInput');
+
+const playersTableBody = document.getElementById('playersTableBody');
+const playerForm = document.getElementById('playerForm');
+const formTitle = document.getElementById('formTitle');
+const cancelForm = document.getElementById('cancelForm');
+
+// Inputs do formulário
+const inputPlayerId = document.getElementById('playerId');
+const inputJogador = document.getElementById('inputJogador');
+const inputUsername = document.getElementById('inputUsername');
+const inputCell = document.getElementById('inputCell');
+const inputAdm = document.getElementById('inputAdm');
+const inputTerca = document.getElementById('inputTerca');
+const inputQuinta = document.getElementById('inputQuinta');
+const inputDomingo = document.getElementById('inputDomingo');
+
+// ===========================================
+// Navegação entre views
+// ===========================================
+function showManagementView() {
+  cardsView.classList.add('hidden');
+  managementView.classList.remove('hidden');
+  loadPlayers();
+}
+
+function showCardsView() {
+  managementView.classList.add('hidden');
+  cardsView.classList.remove('hidden');
+}
+
+cardPlayers.addEventListener('click', showManagementView);
+backBtn.addEventListener('click', showCardsView);
+
+// ===========================================
+// Lógica para a sidebar
+// ===========================================
+function toggleSidebar() {
+  sidebar.classList.toggle('-translate-x-full');
+}
+hamburgerBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleSidebar();
+});
+document.addEventListener('click', (e) => {
+  if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+    sidebar.classList.add('-translate-x-full');
+  }
 });
 
-// Fechar modal
-closeModal.addEventListener("click", () => {
-    playerModal.classList.add("hidden");
+// ===========================================
+// Toggle do formulário (criar/editar)
+// ===========================================
+toggleFormBtn.addEventListener('click', () => {
+  formSection.classList.toggle('hidden');
+  if (!formSection.classList.contains('hidden')) {
+    formTitle.textContent = 'Novo Jogador';
+  }
 });
 
-// Carregar jogadores do Supabase
+// ===========================================
+// Função para carregar jogadores com busca
+// ===========================================
 async function loadPlayers() {
-    const { data: players, error } = await supabase.from("jogadores").select("*");
-    if (error) {
-        console.error("Erro ao buscar jogadores:", error);
-        return;
-    }
-    playerList.innerHTML = "";
-    players.forEach(player => {
-        const listItem = document.createElement("li");
-        listItem.className = "flex justify-between items-center p-2 bg-gray-800 rounded";
-        listItem.innerHTML = `
-            <span>${player.jogador} - ${player.cell}</span>
-            <div>
-                <button onclick="editPlayer(${player.id})" class="text-yellow-400 px-2">Editar</button>
-                <button onclick="deletePlayer(${player.id})" class="text-red-400 px-2">Deletar</button>
-            </div>
-        `;
-        playerList.appendChild(listItem);
-    });
+  const search = searchInput.value.trim();
+  let query = supabaseClient.from('jogadores').select('*').order('id', { ascending: true });
+  if (search) {
+    // Filtra por nome ou telefone (ilike para case-insensitive)
+    query = query.or(`jogador.ilike.%${search}%,cell.ilike.%${search}%`);
+  }
+  const { data: players, error } = await query;
+  if (error) {
+    console.error('Erro ao carregar jogadores:', error);
+    return;
+  }
+  playersTableBody.innerHTML = '';
+  players.forEach(player => {
+    let peladasArr = [];
+    if (player.fut_terca) peladasArr.push("ter");
+    if (player.fut_quinta) peladasArr.push("quin");
+    if (player.fut_domingo) peladasArr.push("dom");
+    let peladas = peladasArr.join(', ');
+    const row = document.createElement('tr');
+    row.classList.add('border-b', 'border-gray-700');
+    row.innerHTML = `
+      <td class="p-2">${player.jogador}</td>
+      <td class="p-2">${player.cell}</td>
+      <td class="p-2">${peladas}</td>
+      <td class="p-2 flex flex-col md:flex-row md:space-x-2 space-y-2 md:space-y-0">
+        <button class="bg-blue-600 px-2 py-1 rounded text-xs md:text-sm" onclick="editPlayer(${player.id})">Editar</button>
+        <button class="bg-red-600 px-2 py-1 rounded text-xs md:text-sm" onclick="deletePlayer(${player.id})">Deletar</button>
+      </td>
+    `;
+    playersTableBody.appendChild(row);
+  });
 }
 
-// Criar jogador
-addPlayerBtn.addEventListener("click", async () => {
-    const jogador = prompt("Nome do jogador:");
-    const username = prompt("Nome de usuário:");
-    const cell = prompt("Telefone:");
-    const adm = confirm("O jogador é administrador?");
-    const fut_terca = confirm("Participa da Pelada de Terça?");
-    const fut_quinta = confirm("Participa da Pelada de Quinta?");
-    const fut_domingo = confirm("Participa da Pelada de Domingo?");
-    
-    const { error } = await supabase.from("jogadores").insert([
-        { jogador, username, cell, adm, fut_terca, fut_quinta, fut_domingo }
-    ]);
-    
+// ===========================================
+// Processa o envio do formulário para criar/atualizar jogador
+// ===========================================
+playerForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const jogador = inputJogador.value.trim();
+  const username = inputUsername.value.trim();
+  const cell = inputCell.value.trim();
+  const adm = inputAdm.checked;
+  const fut_terca = inputTerca.checked;
+  const fut_quinta = inputQuinta.checked;
+  const fut_domingo = inputDomingo.checked;
+  
+  if (inputPlayerId.value) {
+    const id = parseInt(inputPlayerId.value);
+    const { error } = await supabaseClient
+      .from('jogadores')
+      .update({ jogador, username, cell, adm, fut_terca, fut_quinta, fut_domingo })
+      .match({ id });
     if (error) {
-        alert("Erro ao criar jogador");
-    } else {
-        await loadPlayers();
+      alert('Erro ao atualizar jogador');
+      console.error(error);
     }
+  } else {
+    const { error } = await supabaseClient
+      .from('jogadores')
+      .insert([{ jogador, username, cell, adm, fut_terca, fut_quinta, fut_domingo }]);
+    if (error) {
+      alert('Erro ao criar jogador');
+      console.error(error);
+    }
+  }
+  resetForm();
+  loadPlayers();
 });
 
-// Editar jogador
+// ===========================================
+// Preenche o formulário para edição
+// ===========================================
 async function editPlayer(id) {
-    const jogador = prompt("Novo nome do jogador:");
-    const username = prompt("Novo nome de usuário:");
-    const cell = prompt("Novo telefone:");
-    const adm = confirm("O jogador é administrador?");
-    const fut_terca = confirm("Participa da Pelada de Terça?");
-    const fut_quinta = confirm("Participa da Pelada de Quinta?");
-    const fut_domingo = confirm("Participa da Pelada de Domingo?");
-    
-    const { error } = await supabase.from("jogadores").update({
-        jogador, username, cell, adm, fut_terca, fut_quinta, fut_domingo
-    }).match({ id });
-    
-    if (error) {
-        alert("Erro ao atualizar jogador");
-    } else {
-        await loadPlayers();
-    }
+  formSection.classList.remove('hidden');
+  const { data: player, error } = await supabaseClient
+    .from('jogadores')
+    .select('*')
+    .eq('id', id)
+    .single();
+  if (error) {
+    alert('Erro ao carregar jogador para edição');
+    console.error(error);
+    return;
+  }
+  inputPlayerId.value = player.id;
+  inputJogador.value = player.jogador;
+  inputUsername.value = player.username;
+  inputCell.value = player.cell;
+  inputAdm.checked = player.adm;
+  inputTerca.checked = player.fut_terca;
+  inputQuinta.checked = player.fut_quinta;
+  inputDomingo.checked = player.fut_domingo;
+  formTitle.textContent = 'Editar Jogador';
 }
 
-// Deletar jogador
+// ===========================================
+// Deleta um jogador
+// ===========================================
 async function deletePlayer(id) {
-    if (!confirm("Tem certeza que deseja deletar este jogador?")) return;
-    
-    const { error } = await supabase.from("jogadores").delete().match({ id });
-    
-    if (error) {
-        alert("Erro ao deletar jogador");
-    } else {
-        await loadPlayers();
-    }
+  if (!confirm('Tem certeza que deseja deletar este jogador?')) return;
+  const { error } = await supabaseClient
+    .from('jogadores')
+    .delete()
+    .match({ id });
+  if (error) {
+    alert('Erro ao deletar jogador');
+    console.error(error);
+    return;
+  }
+  loadPlayers();
 }
+
+// ===========================================
+// Evento para cancelar e resetar o formulário
+// ===========================================
+cancelForm.addEventListener('click', resetForm);
+function resetForm() {
+  inputPlayerId.value = '';
+  inputJogador.value = '';
+  inputUsername.value = '';
+  inputCell.value = '';
+  inputAdm.checked = false;
+  inputTerca.checked = false;
+  inputQuinta.checked = false;
+  inputDomingo.checked = false;
+  formTitle.textContent = 'Novo Jogador';
+}
+
+// ===========================================
+// Busca de jogadores ao digitar
+// ===========================================
+searchInput.addEventListener('input', loadPlayers);
+
+// ===========================================
+// Atualiza informações do usuário na sidebar
+// ===========================================
+function updateSidebarUser() {
+  const currentUser = window.currentUser || {};
+  const userNameSidebar = document.getElementById('userNameSidebar');
+  const userAvatarSidebar = document.getElementById('userAvatarSidebar');
+  const admOptionSidebar = document.getElementById('admOption');
+  if (currentUser.jogador) {
+    userNameSidebar.textContent = currentUser.jogador;
+  }
+  if (currentUser.email) {
+    const gravatarUrl = `https://www.gravatar.com/avatar/${md5(currentUser.email.trim().toLowerCase())}?d=mp`;
+    userAvatarSidebar.src = gravatarUrl;
+  }
+  if (currentUser.adm) {
+    admOptionSidebar.classList.remove('hidden');
+  }
+}
+updateSidebarUser();
+
+// ===========================================
+// Dropdown da sidebar (usuário)
+// ===========================================
+const userMenuBtn = document.getElementById('userMenuBtn');
+const userDropdown = document.getElementById('userDropdown');
+userMenuBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  userDropdown.classList.toggle('hidden');
+});
+document.addEventListener('click', () => {
+  userDropdown.classList.add('hidden');
+});
+
+// Evento para logout
+const logoutOption = document.getElementById('logoutOption');
+logoutOption.addEventListener('click', () => {
+  localStorage.removeItem('user');
+  window.location.href = '../../index.html';
+});

@@ -4,15 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Joga Fácil - Gerenciamento</title>
+  <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Autenticação -->
   <script src="../../security/auth.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/heroicons/1.0.6/outline/svg/users.svg"></script>
+  <!-- Supabase JS (versão UMD) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+  <!-- Script principal da página (defer) -->
   <script src="./index.js" defer></script>
   <style>
+    /* Fundo com imagem */
     body {
       background: url('../../Assets/background.png') no-repeat center center fixed;
       background-size: cover;
     }
+    /* Efeito blur para o conteúdo principal */
     .backdrop-blur {
       backdrop-filter: blur(8px);
       background-color: rgba(0, 0, 0, 0.5);
@@ -20,22 +26,41 @@
   </style>
 </head>
 <body class="min-h-screen text-white">
-  
-  <!-- Header -->
-  <header class="fixed top-0 left-0 right-0 z-40 flex items-center justify-between p-4 backdrop-blur">
+  <!-- Header fixo -->
+  <header class="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 py-4 backdrop-blur shadow-md">
     <div class="w-8"></div>
     <div class="flex-grow text-center">
       <img src="../../Assets/logo.svg" alt="Logo" class="h-10 inline-block">
     </div>
-    <button id="hamburgerBtn" class="text-white">
-      <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+    <button id="hamburgerBtn" class="text-white focus:outline-none">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"/>
       </svg>
     </button>
   </header>
 
-  <!-- Sidebar -->
+  <!-- Sidebar com cabeçalho de usuário -->
   <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-gray-900 bg-opacity-90 backdrop-blur transform -translate-x-full transition-transform duration-300 z-50">
+    <!-- Cabeçalho da sidebar: Avatar e nome com dropdown -->
+    <div class="p-4 border-b border-gray-700 flex items-center">
+      <img id="userAvatarSidebar" src="https://www.gravatar.com/avatar/?d=mp" alt="Avatar" class="h-10 w-10 rounded-full mr-3">
+      <div class="relative w-full">
+        <button id="userMenuBtn" class="flex items-center justify-between w-full text-left">
+          <span id="userNameSidebar" class="font-semibold">Carregando...</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <div id="userDropdown" class="absolute left-0 mt-2 w-full bg-gray-800 rounded shadow-lg hidden">
+          <ul>
+            <li id="admOption" class="px-4 py-2 hover:bg-gray-700 cursor-pointer hidden">Gerenciar</li>
+            <li id="logoutOption" class="px-4 py-2 hover:bg-red-700 cursor-pointer text-red-400">Sair</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- Menu de navegação da sidebar -->
     <nav class="p-4">
       <ul>
         <li><a href="../../Pages/Home/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">🏠 Home</a></li>
@@ -47,33 +72,98 @@
     </nav>
   </aside>
 
-  <!-- Conteúdo Principal -->
-  <main class="pt-16 p-4 flex justify-center items-center h-screen">
-    <div class="backdrop-blur p-8 rounded-lg shadow-lg w-full max-w-4xl">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div id="managePlayers" class="bg-gray-800 p-6 rounded-lg shadow-lg cursor-pointer hover:bg-gray-700">
-          <div class="flex items-center space-x-4">
-            <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h11M9 21V3m7 7h5m-5 4h5m-5 4h5"/>
-            </svg>
-            <span class="text-lg font-semibold">Gerenciar Jogadores</span>
-          </div>
+  <!-- Conteúdo principal centralizado com espaço após o header -->
+  <main class="pt-16 flex flex-col items-center justify-start min-h-screen backdrop-blur">
+    <!-- View dos Cards: inicialmente exibe os cards (somente o de Gerenciar Jogadores) -->
+    <div id="cardsView" class="w-full max-w-lg mt-8">
+      <div id="cardPlayers" class="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 flex items-center justify-center">
+        <div class="flex flex-col items-center">
+          <!-- Ícone para o card -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M16 7a4 4 0 01-8 0 4 4 0 018 0z M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          <span class="text-lg font-semibold">Gerenciar Jogadores</span>
         </div>
       </div>
     </div>
-  </main>
-
-  <!-- Modal -->
-  <div id="playerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-    <div class="bg-gray-900 p-6 rounded-lg shadow-lg w-96">
-      <h2 class="text-xl font-bold mb-4">Gerenciar Jogadores</h2>
-      <ul id="playerList" class="space-y-2 mb-4 text-white">
-        <!-- Lista de jogadores será carregada aqui -->
-      </ul>
-      <button id="addPlayerBtn" class="bg-green-600 px-4 py-2 rounded text-white">Adicionar Jogador</button>
-      <button id="closeModal" class="bg-red-600 px-4 py-2 rounded text-white ml-2">Fechar</button>
+    
+    <!-- View de Gerenciamento: área de gerenciamento (inicialmente oculta) -->
+    <div id="managementView" class="hidden w-full max-w-4xl mt-8">
+      <!-- Cabeçalho da view com botão de voltar e título -->
+      <div class="flex items-center mb-4">
+        <button id="backBtn" class="bg-gray-700 p-2 rounded hover:bg-gray-600 mr-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <h2 class="text-2xl font-bold">Gerenciamento de Jogadores</h2>
+      </div>
+      
+      <!-- Botão dropdown fixo para exibir/ocultar o formulário -->
+      <button id="toggleFormBtn" class="mb-4 bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">
+        Criar Novo Jogador
+      </button>
+      
+      <!-- Seção do formulário (oculta por padrão) -->
+      <div id="formSection" class="hidden mb-4 bg-gray-800 p-4 rounded">
+        <h3 class="text-xl font-semibold mb-2" id="formTitle">Novo Jogador</h3>
+        <form id="playerForm" class="space-y-3">
+          <!-- Campo oculto para id (edição) -->
+          <input type="hidden" id="playerId">
+          <div>
+            <label class="block">Nome do Jogador</label>
+            <input type="text" id="inputJogador" class="w-full p-2 rounded bg-gray-700" required>
+          </div>
+          <div>
+            <label class="block">Nome de Usuário</label>
+            <input type="text" id="inputUsername" class="w-full p-2 rounded bg-gray-700" required>
+          </div>
+          <div>
+            <label class="block">Telefone</label>
+            <input type="text" id="inputCell" class="w-full p-2 rounded bg-gray-700" required>
+          </div>
+          <div class="flex items-center space-x-2">
+            <label><input type="checkbox" id="inputAdm" class="mr-1"> Admin</label>
+          </div>
+          <div class="flex items-center space-x-2">
+            <label><input type="checkbox" id="inputTerca" class="mr-1"> Ter</label>
+          </div>
+          <div class="flex items-center space-x-2">
+            <label><input type="checkbox" id="inputQuinta" class="mr-1"> Quin</label>
+          </div>
+          <div class="flex items-center space-x-2">
+            <label><input type="checkbox" id="inputDomingo" class="mr-1"> Dom</label>
+          </div>
+          <div class="flex space-x-4">
+            <button type="submit" class="bg-green-600 px-4 py-2 rounded hover:bg-green-700">Salvar</button>
+            <button type="button" id="cancelForm" class="bg-red-600 px-4 py-2 rounded hover:bg-red-700">Cancelar</button>
+          </div>
+        </form>
+      </div>
+      
+      <!-- Campo de busca -->
+      <div class="mb-4">
+        <input type="text" id="searchInput" placeholder="Buscar por nome ou telefone" class="w-full p-2 rounded bg-gray-700" />
+      </div>
+      
+      <!-- Tabela com lista de jogadores (altura fixa com scroll) -->
+      <div id="playersTableContainer" class="mb-6 overflow-y-auto max-h-96">
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-gray-800">
+            <tr>
+              <th class="p-2 border border-gray-700">Jogador</th>
+              <th class="p-2 border border-gray-700">Telefone</th>
+              <th class="p-2 border border-gray-700">Peladas</th>
+              <th class="p-2 border border-gray-700">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="playersTableBody">
+            <!-- Linhas serão preenchidas via JavaScript com dados do Supabase -->
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-
+  </main>
 </body>
 </html>
