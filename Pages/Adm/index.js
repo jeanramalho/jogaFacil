@@ -628,3 +628,4 @@ async function loadChampionships() {
 function openChampionshipDetail(champ) {
   alert('Abrir detalhes do campeonato: ' + champ.nome);
 }
+
