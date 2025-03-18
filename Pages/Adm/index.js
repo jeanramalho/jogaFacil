@@ -54,6 +54,7 @@ function showManagementView() {
 }
 function showCardsView() {
   managementView.classList.add('hidden');
+  peladaView.classList.add('hidden'); // Adicionado para esconder a view de peladas
   cardsView.classList.remove('hidden');
 }
 cardPlayers.addEventListener('click', showManagementView);

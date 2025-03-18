@@ -75,30 +75,36 @@
   <!-- Conteúdo principal centralizado com espaço após o header -->
   <main class="pt-16 flex flex-col items-center justify-start min-h-screen backdrop-blur">
     <!-- View dos Cards: inicialmente exibe os cards (somente o de Gerenciar Jogadores) -->
-    <div id="cardsView" class="w-full max-w-lg mt-8">
-      <div id="cardPlayers" class="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 flex items-center justify-center">
-        <div class="flex flex-col items-center">
-          <!-- Ícone para o card -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M16 7a4 4 0 01-8 0 4 4 0 018 0z M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-          <span class="text-lg font-semibold">Gerenciar Jogadores</span>
-        </div>
-      </div>
-
-      <!-- Novo Card: Criar Pelada -->
-    <div id="cardPelada" class="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 flex items-center justify-center mt-4">
-      <div class="flex flex-col items-center">
-        <!-- Ícone para criar (exemplo: um sinal de +) -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        <span class="text-lg font-semibold">Criar Pelada</span>
-      </div>
+<!-- View dos Cards -->
+<div id="cardsView" class="w-full max-w-lg mt-8 grid grid-cols-2 gap-4 justify-center">
+  
+  <!-- Card: Gerenciar Jogadores -->
+  <div id="cardPlayers" class="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 flex items-center justify-center aspect-square max-w-[160px] sm:max-w-[180px] mx-auto">
+    <div class="flex flex-col items-center">
+      <!-- Ícone -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white mb-2 sm:h-12 sm:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 7a4 4 0 01-8 0 4 4 0 018 0z M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg>
+      <span class="text-base sm:text-lg font-semibold text-white">Gerenciar</span>
     </div>
+  </div>
 
+  <!-- Card: Criar Pelada -->
+  <div id="cardPelada" class="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 flex items-center justify-center aspect-square max-w-[160px] sm:max-w-[180px] mx-auto">
+    <div class="flex flex-col items-center">
+      <!-- Ícone -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white mb-2 sm:h-12 sm:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      <span class="text-base sm:text-lg font-semibold text-white">Criar Pelada</span>
     </div>
+  </div>
+
+</div>
+
+
+
     
     <!-- View de Gerenciamento: área de gerenciamento (inicialmente oculta) -->
     <div id="managementView" class="hidden w-full max-w-4xl mt-8">
