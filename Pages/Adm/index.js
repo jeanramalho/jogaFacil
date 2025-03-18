@@ -395,7 +395,7 @@ async function loadPeladas() {
   }
   
   // Ordena os resultados da mais recente para a mais antiga
-  results.sort((a, b) => new Date(b.data_pelada) - new Date(a.data_pelada));
+  results.sort((a, b) => new Date(a.data_pelada) - new Date(b.data_pelada));
   
   // Preenche a tabela
   peladaTableBody.innerHTML = '';
@@ -497,4 +497,134 @@ async function deletePelada(id, dia) {
     return;
   }
   loadPeladas();
+}
+
+// Função para apagar peladas antigas (2 dias após terem passado)
+async function cleanupOldPeladas() {
+  // Calcula a data de corte: hoje menos 2 dias
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 2);
+  const cutoffStr = cutoff.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+  
+  // Tabelas de peladas
+  const tables = ['fut_domingo', 'fut_terca', 'fut_quinta'];
+  
+  for (const table of tables) {
+    const { error } = await supabaseClient
+      .from(table)
+      .delete()
+      .lt('data_pelada', cutoffStr);
+    if (error) {
+      console.error(`Erro ao apagar registros antigos da tabela ${table}:`, error);
+    }
+  }
+}
+
+// Chama a função de limpeza assim que possível (ao carregar a página)
+cleanupOldPeladas();
+
+// ===== Módulo de Campeonato =====
+// Seleção de elementos para a view de campeonatos
+const cardChampionship = document.getElementById('cardChampionship');
+const championshipView = document.getElementById('championshipView');
+const backChampBtn = document.getElementById('backChampBtn');
+const toggleChampFormBtn = document.getElementById('toggleChampFormBtn');
+const champFormSection = document.getElementById('champFormSection');
+const champFormTitle = document.getElementById('champFormTitle');
+const champForm = document.getElementById('champForm');
+const inputChampName = document.getElementById('inputChampName');
+const inputNumTeams = document.getElementById('inputNumTeams');
+const teamsContainer = document.getElementById('teamsContainer');
+const championshipListContainer = document.getElementById('championshipListContainer');
+
+// Evento: clique no card "Criar e Gerenciar Campeonato"
+cardChampionship.addEventListener('click', () => {
+  // Esconde outras views e exibe a view de campeonato
+  cardsView.classList.add('hidden');
+  championshipView.classList.remove('hidden');
+  loadChampionships();
+});
+
+// Botão de voltar na view de campeonato
+backChampBtn.addEventListener('click', () => {
+  championshipView.classList.add('hidden');
+  cardsView.classList.remove('hidden');
+});
+
+// Evento para alternar o formulário de campeonato
+toggleChampFormBtn.addEventListener('click', () => {
+  champFormSection.classList.toggle('hidden');
+  if (!champFormSection.classList.contains('hidden')) {
+    champFormTitle.textContent = 'Novo Campeonato';
+    teamsContainer.innerHTML = ''; // Limpa campos de times
+  }
+});
+
+// Gera os campos para os nomes dos times conforme a quantidade selecionada
+inputNumTeams.addEventListener('change', () => {
+  const num = parseInt(inputNumTeams.value);
+  teamsContainer.innerHTML = '';
+  for (let i = 1; i <= num; i++) {
+    const div = document.createElement('div');
+    div.innerHTML = `<label class="block">Nome do Time ${i}</label>
+                     <input type="text" class="w-full p-2 rounded bg-gray-700 teamName" required>`;
+    teamsContainer.appendChild(div);
+  }
+});
+
+// Processa o formulário de criação de campeonato
+champForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const champName = inputChampName.value.trim();
+  const numTeams = parseInt(inputNumTeams.value);
+  const teamInputs = document.querySelectorAll('.teamName');
+  let teams = [];
+  teamInputs.forEach(input => {
+    teams.push(input.value.trim());
+  });
+  // Insere o campeonato na tabela 'campeonatos'
+  const { data, error } = await supabaseClient
+    .from('campeonatos')
+    .insert([{ nome: champName, num_teams: numTeams, teams: teams, created_at: new Date().toISOString() }])
+    .single();
+  if (error) {
+    alert('Erro ao criar campeonato');
+    console.error(error);
+    return;
+  }
+  alert('Campeonato criado com sucesso!');
+  // Após criar, atualiza a lista
+  loadChampionships();
+  champFormSection.classList.add('hidden');
+});
+
+// Função para carregar os campeonatos ativos
+async function loadChampionships() {
+  const { data: champs, error } = await supabaseClient
+    .from('campeonatos')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) {
+    console.error('Erro ao carregar campeonatos:', error);
+    return;
+  }
+  championshipListContainer.innerHTML = '';
+  champs.forEach(champ => {
+    const div = document.createElement('div');
+    div.className = "bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 mb-4";
+    div.innerHTML = `
+      <h3 class="text-lg font-semibold">${champ.nome}</h3>
+      <p class="text-sm">Times: ${champ.teams.join(', ')}</p>
+    `;
+    // Ao clicar, abre os detalhes do campeonato (aqui, apenas um placeholder)
+    div.addEventListener('click', () => {
+      openChampionshipDetail(champ);
+    });
+    championshipListContainer.appendChild(div);
+  });
+}
+
+// Função placeholder para abrir o detalhe do campeonato (para gerenciar times, jogadores, jogos, etc.)
+function openChampionshipDetail(champ) {
+  alert('Abrir detalhes do campeonato: ' + champ.nome);
 }

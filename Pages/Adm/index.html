@@ -101,6 +101,17 @@
     </div>
   </div>
 
+<!-- NOVO CARD: Criar e Gerenciar Campeonato -->
+<div id="cardChampionship" class="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 flex items-center justify-center aspect-square max-w-[160px] sm:max-w-[180px] mx-auto">
+  <div class="flex flex-col items-center">
+    <!-- Ícone de troféu (exemplo) -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a3 3 0 016 0v2m-6 4h6m2 0a2 2 0 002-2V9a2 2 0 00-2-2h-1M7 7H6a2 2 0 00-2 2v10a2 2 0 002 2h1m10-14V7m0 0h-4" />
+    </svg>
+    <span class="text-base sm:text-lg font-semibold text-white">Criar e Gerenciar Campeonato</span>
+  </div>
+</div>
+
 </div>
 
 
@@ -265,6 +276,54 @@
         <!-- Linhas serão preenchidas via JavaScript com dados do Supabase -->
       </tbody>
     </table>
+  </div>
+</div>
+
+<!-- NOVA VIEW: Gerenciamento de Campeonatos -->
+<div id="championshipView" class="hidden w-full max-w-4xl mt-8">
+  <!-- Cabeçalho com botão de voltar (ícone) e título -->
+  <div class="flex items-center mb-4">
+    <button id="backChampBtn" class="bg-gray-700 p-2 rounded hover:bg-gray-600 mr-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+    <h2 class="text-2xl font-bold">Gerenciamento de Campeonato</h2>
+  </div>
+  
+  <!-- Botão para exibir/ocultar o formulário de criação de campeonato -->
+  <button id="toggleChampFormBtn" class="mb-4 bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">
+    Criar Novo Campeonato
+  </button>
+  
+  <!-- Seção do formulário de campeonato (oculta por padrão) -->
+  <div id="champFormSection" class="hidden mb-4 bg-gray-800 p-4 rounded">
+    <h3 class="text-xl font-semibold mb-2" id="champFormTitle">Novo Campeonato</h3>
+    <form id="champForm" class="space-y-3">
+      <div>
+        <label class="block">Nome do Campeonato</label>
+        <input type="text" id="inputChampName" class="w-full p-2 rounded bg-gray-700" required>
+      </div>
+      <div>
+        <label class="block">Quantidade de Times</label>
+        <select id="inputNumTeams" class="w-full p-2 rounded bg-gray-700" required>
+          <option value="" disabled selected>Selecione...</option>
+          <option value="4">4</option>
+          <option value="8">8</option>
+          <option value="16">16</option>
+        </select>
+      </div>
+      <!-- Container para inserir dinamicamente os campos de nomes dos times -->
+      <div id="teamsContainer" class="space-y-2"></div>
+      <div>
+        <button type="submit" class="bg-green-600 px-4 py-2 rounded hover:bg-green-700">Criar Campeonato</button>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Lista de Campeonatos Ativos -->
+  <div id="championshipListContainer" class="mb-6">
+    <!-- Aqui serão exibidos os campeonatos ativos como cards ou lista -->
   </div>
 </div>
 
