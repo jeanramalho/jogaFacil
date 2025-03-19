@@ -3,22 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Joga Fácil - Gerenciamento</title>
+  <title>Joga Fácil</title>
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Autenticação -->
-  <script src="../../security/auth.js"></script>
   <!-- Supabase JS (versão UMD) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
-  <!-- Script principal da página (defer) -->
-  <script src="./index.js" defer></script>
+  <!-- Autenticação -->
+  <script src="../../Security/auth.js"></script>
   <style>
-    /* Fundo com imagem */
     body {
       background: url('../../Assets/background.png') no-repeat center center fixed;
       background-size: cover;
     }
-    /* Efeito blur para o conteúdo principal */
     .backdrop-blur {
       backdrop-filter: blur(8px);
       background-color: rgba(0, 0, 0, 0.5);
@@ -34,22 +30,20 @@
     </div>
     <button id="hamburgerBtn" class="text-white focus:outline-none">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
       </svg>
     </button>
   </header>
 
   <!-- Sidebar com cabeçalho de usuário -->
   <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-gray-900 bg-opacity-90 backdrop-blur transform -translate-x-full transition-transform duration-300 z-50">
-    <!-- Cabeçalho da sidebar: Avatar, nome e dropdown -->
     <div class="p-4 border-b border-gray-700 flex items-center">
       <img id="userAvatarSidebar" src="https://www.gravatar.com/avatar/?d=mp" alt="Avatar" class="h-10 w-10 rounded-full mr-3">
       <div class="relative w-full">
         <button id="userMenuBtn" class="flex items-center justify-between w-full text-left">
           <span id="userNameSidebar" class="font-semibold">Carregando...</span>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
         <div id="userDropdown" class="absolute left-0 mt-2 w-full bg-gray-800 rounded shadow-lg hidden">
@@ -60,66 +54,55 @@
         </div>
       </div>
     </div>
-    <!-- Menu de navegação da sidebar -->
     <nav class="p-4">
       <ul>
-        <li><a href="../../Pages/Home/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">🏠 Home</a></li>
-        <li><a href="../../Pages/Presenca/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">✅ Confirmar Presença</a></li>
-        <li><a href="../../Pages/Cartola/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">⚽ Cartola</a></li>
-        <li><a href="../../Pages/Campeonatos/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">🏆 Campeonatos</a></li>
-        <li><a href="../../Pages/Financeiro/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">💰 Financeiro</a></li>
+        <li><a href="Pages/Home/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">🏠 Home</a></li>
+        <li><a href="Pages/Presenca/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">✅ Confirmar Presença</a></li>
+        <li><a href="Pages/Cartola/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">⚽ Cartola</a></li>
+        <li><a href="Pages/Campeonatos/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">🏆 Campeonatos</a></li>
+        <li><a href="Pages/Financeiro/index.html" class="block px-4 py-3 rounded hover:bg-gray-700">💰 Financeiro</a></li>
       </ul>
     </nav>
   </aside>
 
-  <!-- Conteúdo principal centralizado com espaço após o header -->
+  <!-- Main Content -->
   <main class="pt-16 flex flex-col items-center justify-start min-h-screen backdrop-blur">
-    <!-- View dos Cards: inicialmente exibe os cards (somente o de Gerenciar Jogadores) -->
-<!-- View dos Cards -->
-<div id="cardsView" class="w-full max-w-lg mt-8 grid grid-cols-2 gap-4 justify-center">
-  
-  <!-- Card: Gerenciar Jogadores -->
-  <div id="cardPlayers" class="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 flex items-center justify-center aspect-square max-w-[160px] sm:max-w-[180px] mx-auto">
-    <div class="flex flex-col items-center">
-      <!-- Ícone -->
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white mb-2 sm:h-12 sm:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M16 7a4 4 0 01-8 0 4 4 0 018 0z M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-      </svg>
-      <span class="text-base sm:text-lg font-semibold text-white">Gerenciar</span>
+    <!-- Cards View -->
+    <div id="cardsView" class="w-full max-w-lg mt-8 grid grid-cols-2 gap-4 justify-center">
+      <!-- Card: Gerenciar Jogadores -->
+      <div id="cardPlayers" class="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 flex items-center justify-center aspect-square max-w-[160px] sm:max-w-[180px] mx-auto">
+        <div class="flex flex-col items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white mb-2 sm:h-12 sm:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 01-8 0 4 4 0 018 0z M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          <span class="text-base sm:text-lg font-semibold text-white">Gerenciar</span>
+        </div>
+      </div>
+
+      <!-- Card: Criar Pelada -->
+      <div id="cardPelada" class="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 flex items-center justify-center aspect-square max-w-[160px] sm:max-w-[180px] mx-auto">
+        <div class="flex flex-col items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white mb-2 sm:h-12 sm:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span class="text-base sm:text-lg font-semibold text-white">Criar Pelada</span>
+        </div>
+      </div>
+
+      <!-- Card: Criar e Gerenciar Campeonato -->
+      <div id="cardChampionship" class="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 flex items-center justify-center aspect-square max-w-[160px] sm:max-w-[180px] mx-auto">
+        <div class="flex flex-col items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a3 3 0 016 0v2m-6 4h6m2 0a2 2 0 002-2V9a2 2 0 00-2-2h-1M7 7H6a2 2 0 00-2 2v10a2 2 0 002 2h1m10-14V7m0 0h-4" />
+          </svg>
+          <span class="text-base sm:text-lg font-semibold text-white">Campeonato</span>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Card: Criar Pelada -->
-  <div id="cardPelada" class="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 flex items-center justify-center aspect-square max-w-[160px] sm:max-w-[180px] mx-auto">
-    <div class="flex flex-col items-center">
-      <!-- Ícone -->
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white mb-2 sm:h-12 sm:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
-      <span class="text-base sm:text-lg font-semibold text-white">Criar Pelada</span>
-    </div>
-  </div>
-
-<!-- NOVO CARD: Criar e Gerenciar Campeonato -->
-<div id="cardChampionship" class="bg-gray-800 p-4 rounded-lg shadow-md cursor-pointer hover:bg-gray-700 flex items-center justify-center aspect-square max-w-[160px] sm:max-w-[180px] mx-auto">
-  <div class="flex flex-col items-center">
-    <!-- Ícone de troféu (exemplo) -->
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a3 3 0 016 0v2m-6 4h6m2 0a2 2 0 002-2V9a2 2 0 00-2-2h-1M7 7H6a2 2 0 00-2 2v10a2 2 0 002 2h1m10-14V7m0 0h-4" />
-    </svg>
-    <span class="text-base sm:text-lg font-semibold text-white">Criar e Gerenciar Campeonato</span>
-  </div>
-</div>
-
-</div>
-
-
-
-    
-    <!-- View de Gerenciamento: área de gerenciamento (inicialmente oculta) -->
+    <!-- View: Gerenciamento de Jogadores -->
     <div id="managementView" class="hidden w-full max-w-4xl mt-8">
-      <!-- Cabeçalho com botão de voltar (ícone) e título -->
+      <!-- Cabeçalho -->
       <div class="flex items-center mb-4">
         <button id="backBtn" class="bg-gray-700 p-2 rounded hover:bg-gray-600 mr-4">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -128,17 +111,14 @@
         </button>
         <h2 class="text-2xl font-bold">Gerenciamento de Jogadores</h2>
       </div>
-      
-      <!-- Botão dropdown fixo para exibir/ocultar o formulário -->
+      <!-- Botão para mostrar formulário -->
       <button id="toggleFormBtn" class="mb-4 bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">
         Criar Novo Jogador
       </button>
-      
-      <!-- Seção do formulário (oculta por padrão) -->
+      <!-- Formulário de Jogadores -->
       <div id="formSection" class="hidden mb-4 bg-gray-800 p-4 rounded">
         <h3 class="text-xl font-semibold mb-2" id="formTitle">Novo Jogador</h3>
         <form id="playerForm" class="space-y-3">
-          <!-- Campo oculto para armazenar o id (edição) -->
           <input type="hidden" id="playerId">
           <div>
             <label class="block">Nome do Jogador</label>
@@ -170,20 +150,16 @@
           </div>
         </form>
       </div>
-      
-      <!-- Campo de busca -->
+      <!-- Campo de busca e filtros -->
       <div class="mb-2">
         <input type="text" id="searchInput" placeholder="Buscar por nome ou telefone" class="w-full p-2 rounded bg-gray-700" />
       </div>
-      
-      <!-- Filtros para peladas -->
       <div id="filterButtons" class="mb-4 flex space-x-2">
         <button id="filterTer" class="px-3 py-1 bg-gray-700 rounded text-sm">Ter</button>
         <button id="filterQuin" class="px-3 py-1 bg-gray-700 rounded text-sm">Quin</button>
         <button id="filterDom" class="px-3 py-1 bg-gray-700 rounded text-sm">Dom</button>
       </div>
-      
-      <!-- Tabela com a lista de jogadores (altura fixa com scroll) -->
+      <!-- Tabela de jogadores -->
       <div id="playersTableContainer" class="mb-6 overflow-y-auto max-h-96">
         <table class="w-full text-left border-collapse">
           <thead class="bg-gray-800">
@@ -195,139 +171,156 @@
             </tr>
           </thead>
           <tbody id="playersTableBody">
-            <!-- Linhas serão preenchidas via JavaScript com dados do Supabase -->
+            <!-- Preenchido via JS -->
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Nova View: Gerenciamento de Peladas -->
-<div id="peladaView" class="hidden w-full max-w-4xl mt-8">
-  <!-- Cabeçalho com botão de voltar (ícone) e título -->
-  <div class="flex items-center mb-4">
-    <button id="backPeladaBtn" class="bg-gray-700 p-2 rounded hover:bg-gray-600 mr-4">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-      </svg>
-    </button>
-    <h2 class="text-2xl font-bold">Gerenciamento de Peladas</h2>
-  </div>
-  
-  <!-- Botão para exibir/ocultar o formulário de criação/edição de pelada -->
-  <button id="togglePeladaFormBtn" class="mb-4 bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">
-    Criar Nova Pelada
-  </button>
-  
-  <!-- Seção do formulário de pelada (oculta por padrão) -->
-  <div id="peladaFormSection" class="hidden mb-4 bg-gray-800 p-4 rounded">
-    <h3 class="text-xl font-semibold mb-2" id="peladaFormTitle">Nova Pelada</h3>
-    <form id="peladaForm" class="space-y-3">
-      <!-- Campo oculto para armazenar o id da pelada (modo edição) -->
-      <input type="hidden" id="peladaId">
-      <!-- Seleção do dia da pelada (determina a tabela de destino) -->
-      <div>
-        <label class="block mb-1">Dia da Pelada:</label>
-        <div class="flex space-x-4">
-          <label class="flex items-center">
-            <input type="radio" name="peladaDay" value="dom" required class="mr-1"> Domingo
-          </label>
-          <label class="flex items-center">
-            <input type="radio" name="peladaDay" value="ter" class="mr-1"> Terça-Feira
-          </label>
-          <label class="flex items-center">
-            <input type="radio" name="peladaDay" value="quin" class="mr-1"> Quinta-Feira
-          </label>
+    <!-- View: Gerenciamento de Peladas -->
+    <div id="peladaView" class="hidden w-full max-w-4xl mt-8">
+      <div class="flex items-center mb-4">
+        <button id="backPeladaBtn" class="bg-gray-700 p-2 rounded hover:bg-gray-600 mr-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <h2 class="text-2xl font-bold">Gerenciamento de Peladas</h2>
+      </div>
+      <button id="togglePeladaFormBtn" class="mb-4 bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">
+        Criar Nova Pelada
+      </button>
+      <div id="peladaFormSection" class="hidden mb-4 bg-gray-800 p-4 rounded">
+        <h3 class="text-xl font-semibold mb-2" id="peladaFormTitle">Nova Pelada</h3>
+        <form id="peladaForm" class="space-y-3">
+          <input type="hidden" id="peladaId">
+          <div>
+            <label class="block mb-1">Dia da Pelada:</label>
+            <div class="flex space-x-4">
+              <label class="flex items-center">
+                <input type="radio" name="peladaDay" value="dom" required class="mr-1"> Domingo
+              </label>
+              <label class="flex items-center">
+                <input type="radio" name="peladaDay" value="ter" class="mr-1"> Terça-Feira
+              </label>
+              <label class="flex items-center">
+                <input type="radio" name="peladaDay" value="quin" class="mr-1"> Quinta-Feira
+              </label>
+            </div>
+          </div>
+          <div>
+            <label class="block">Data da Pelada</label>
+            <input type="date" id="inputDataPelada" class="w-full p-2 rounded bg-gray-700" required>
+          </div>
+          <div>
+            <label class="block">Horário</label>
+            <input type="time" id="inputHoraPelada" class="w-full p-2 rounded bg-gray-700" required>
+          </div>
+          <div class="flex space-x-4">
+            <button type="submit" class="bg-green-600 px-4 py-2 rounded hover:bg-green-700">Salvar</button>
+            <button type="button" id="cancelPeladaForm" class="bg-red-600 px-4 py-2 rounded hover:bg-red-700">Cancelar</button>
+          </div>
+        </form>
+      </div>
+      <div id="peladaFilterButtons" class="mb-4 flex space-x-2">
+        <button id="filterDomPelada" class="px-3 py-1 bg-gray-700 rounded text-sm">Domingo</button>
+        <button id="filterTerPelada" class="px-3 py-1 bg-gray-700 rounded text-sm">Terça-Feira</button>
+        <button id="filterQuinPelada" class="px-3 py-1 bg-gray-700 rounded text-sm">Quinta-Feira</button>
+      </div>
+      <div id="peladaTableContainer" class="mb-6 overflow-y-auto max-h-96">
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-gray-800">
+            <tr>
+              <th class="p-2 border border-gray-700">Dia</th>
+              <th class="p-2 border border-gray-700">Data</th>
+              <th class="p-2 border border-gray-700">Horário</th>
+              <th class="p-2 border border-gray-700">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="peladaTableBody">
+            <!-- Preenchido via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- View: Gerenciamento de Campeonatos -->
+    <div id="championshipView" class="hidden w-full max-w-4xl mt-8">
+      <div class="flex items-center mb-4">
+        <button id="backChampBtn" class="bg-gray-700 p-2 rounded hover:bg-gray-600 mr-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <h2 class="text-2xl font-bold">Gerenciamento de Campeonato</h2>
+      </div>
+      <button id="toggleChampFormBtn" class="mb-4 bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">
+        Criar Novo Campeonato
+      </button>
+      <div id="champFormSection" class="hidden mb-4 bg-gray-800 p-4 rounded">
+        <h3 class="text-xl font-semibold mb-2" id="champFormTitle">Novo Campeonato</h3>
+        <form id="champForm" class="space-y-3">
+          <div>
+            <label class="block">Nome do Campeonato</label>
+            <input type="text" id="inputChampName" class="w-full p-2 rounded bg-gray-700" required>
+          </div>
+          <div>
+            <label class="block">Quantidade de Times</label>
+            <select id="inputNumTeams" class="w-full p-2 rounded bg-gray-700" required>
+              <option value="" disabled selected>Selecione...</option>
+              <option value="4">4</option>
+              <option value="8">8</option>
+              <option value="16">16</option>
+            </select>
+          </div>
+          <div id="teamsContainer" class="space-y-2"></div>
+          <div>
+            <button type="submit" class="bg-green-600 px-4 py-2 rounded hover:bg-green-700">Criar Campeonato</button>
+          </div>
+        </form>
+      </div>
+      <div id="championshipListContainer" class="mb-6">
+        <!-- Campeonatos ativos serão listados aqui -->
+      </div>
+    </div>
+
+    <!-- View: Detalhes do Campeonato (Editar Times) -->
+    <div id="championshipDetailView" class="hidden w-full max-w-4xl mt-8">
+      <div class="flex items-center mb-4">
+        <button id="backChampDetailBtn" class="bg-gray-700 p-2 rounded hover:bg-gray-600 mr-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <h2 class="text-2xl font-bold">Detalhes do Campeonato</h2>
+      </div>
+      <!-- Botão para editar times -->
+      <button id="editTeamsBtnChamp" class="mb-4 bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">
+        Editar Times
+      </button>
+      <!-- Container para exibir os times do campeonato -->
+      <div id="teamsContainerChamp" class="mb-4"></div>
+      <!-- Seção de busca e filtros para jogadores disponíveis -->
+      <div id="playerSearchSectionChamp" class="mb-4 hidden">
+        <input type="text" id="playerSearchChamp" placeholder="Buscar jogadores" class="w-full p-2 rounded bg-gray-700 mb-2">
+        <div class="flex space-x-2">
+          <button id="filterTerBtnChamp" class="px-3 py-1 bg-gray-700 rounded text-sm">Ter</button>
+          <button id="filterQuinBtnChamp" class="px-3 py-1 bg-gray-700 rounded text-sm">Quin</button>
+          <button id="filterDomBtnChamp" class="px-3 py-1 bg-gray-700 rounded text-sm">Dom</button>
         </div>
       </div>
-      <div>
-        <label class="block">Data da Pelada</label>
-        <input type="date" id="inputDataPelada" class="w-full p-2 rounded bg-gray-700" required>
-      </div>
-      <div>
-        <label class="block">Horário</label>
-        <input type="time" id="inputHoraPelada" class="w-full p-2 rounded bg-gray-700" required>
-      </div>
-      <div class="flex space-x-4">
-        <button type="submit" class="bg-green-600 px-4 py-2 rounded hover:bg-green-700">Salvar</button>
-        <button type="button" id="cancelPeladaForm" class="bg-red-600 px-4 py-2 rounded hover:bg-red-700">Cancelar</button>
-      </div>
-    </form>
-  </div>
-  
-  <!-- Filtros para peladas -->
-  <div id="peladaFilterButtons" class="mb-4 flex space-x-2">
-    <button id="filterDomPelada" class="px-3 py-1 bg-gray-700 rounded text-sm">Domingo</button>
-    <button id="filterTerPelada" class="px-3 py-1 bg-gray-700 rounded text-sm">Terça-Feira</button>
-    <button id="filterQuinPelada" class="px-3 py-1 bg-gray-700 rounded text-sm">Quinta-Feira</button>
-  </div>
-  
-  <!-- Tabela com a lista de peladas (altura fixa com scroll) -->
-  <div id="peladaTableContainer" class="mb-6 overflow-y-auto max-h-96">
-    <table class="w-full text-left border-collapse">
-      <thead class="bg-gray-800">
-        <tr>
-          <th class="p-2 border border-gray-700">Dia</th>
-          <th class="p-2 border border-gray-700">Data</th>
-          <th class="p-2 border border-gray-700">Horário</th>
-          <th class="p-2 border border-gray-700">Ações</th>
-        </tr>
-      </thead>
-      <tbody id="peladaTableBody">
-        <!-- Linhas serão preenchidas via JavaScript com dados do Supabase -->
-      </tbody>
-    </table>
-  </div>
-</div>
+      <!-- Container para listar jogadores disponíveis para adicionar -->
+      <div id="playersListContainerChamp" class="mb-4 hidden"></div>
+      <!-- Botão para finalizar edição de times -->
+      <button id="finalizeTeamsBtnChamp" class="bg-green-600 px-4 py-2 rounded hover:bg-green-700">
+        Finalizar Edição de Times
+      </button>
+    </div>
 
-<!-- NOVA VIEW: Gerenciamento de Campeonatos -->
-<div id="championshipView" class="hidden w-full max-w-4xl mt-8">
-  <!-- Cabeçalho com botão de voltar (ícone) e título -->
-  <div class="flex items-center mb-4">
-    <button id="backChampBtn" class="bg-gray-700 p-2 rounded hover:bg-gray-600 mr-4">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-      </svg>
-    </button>
-    <h2 class="text-2xl font-bold">Gerenciamento de Campeonato</h2>
-  </div>
-  
-  <!-- Botão para exibir/ocultar o formulário de criação de campeonato -->
-  <button id="toggleChampFormBtn" class="mb-4 bg-gray-700 px-4 py-2 rounded hover:bg-gray-600">
-    Criar Novo Campeonato
-  </button>
-  
-  <!-- Seção do formulário de campeonato (oculta por padrão) -->
-  <div id="champFormSection" class="hidden mb-4 bg-gray-800 p-4 rounded">
-    <h3 class="text-xl font-semibold mb-2" id="champFormTitle">Novo Campeonato</h3>
-    <form id="champForm" class="space-y-3">
-      <div>
-        <label class="block">Nome do Campeonato</label>
-        <input type="text" id="inputChampName" class="w-full p-2 rounded bg-gray-700" required>
-      </div>
-      <div>
-        <label class="block">Quantidade de Times</label>
-        <select id="inputNumTeams" class="w-full p-2 rounded bg-gray-700" required>
-          <option value="" disabled selected>Selecione...</option>
-          <option value="4">4</option>
-          <option value="8">8</option>
-          <option value="16">16</option>
-        </select>
-      </div>
-      <!-- Container para inserir dinamicamente os campos de nomes dos times -->
-      <div id="teamsContainer" class="space-y-2"></div>
-      <div>
-        <button type="submit" class="bg-green-600 px-4 py-2 rounded hover:bg-green-700">Criar Campeonato</button>
-      </div>
-    </form>
-  </div>
-  
-  <!-- Lista de Campeonatos Ativos -->
-  <div id="championshipListContainer" class="mb-6">
-    <!-- Aqui serão exibidos os campeonatos ativos como cards ou lista -->
-  </div>
-</div>
-
-    
   </main>
+
+  <!-- Inclua o script principal -->
+  <script type="module" src="js/index.js"></script>
+
 </body>
 </html>

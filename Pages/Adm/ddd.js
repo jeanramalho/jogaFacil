@@ -1,35 +1,66 @@
 // =====================================================
-// Configuração do Supabase (credenciais do projeto)
+// SUPABASE CONFIGURATION
 // =====================================================
 const SUPABASE_URL = "https://kmunojpmxnrepmzgxqmo.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttdW5vanBteG5yZXBtemd4cW1vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxMzExOTksImV4cCI6MjA1NzcwNzE5OX0.pXDLJnT4Pgf1eZrThAe_7XpPQ6w5wTYFX_jbb2SltwA";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttdW5vanBteG5yZXBtemd4cW1vIiwicm9sI6ImFub24iLCJpYXQiOjE3NDIxMzExOTksImV4cCI6MjA1NzcwNzE5OX0.pXDLJnT4Pgf1eZrThAe_7XpPQ6w5wTYFX_jbb2SltwA";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ===========================================
-// Seleção de elementos do DOM
-// ===========================================
+// =====================================================
+// COMMON: DOM ELEMENTS & MAIN VIEWS
+// =====================================================
+// Botão e Sidebar
 const hamburgerBtn = document.getElementById('hamburgerBtn');
 const sidebar = document.getElementById('sidebar');
 
+// Views principais
 const cardsView = document.getElementById('cardsView');
-const managementView = document.getElementById('managementView');
+const managementView = document.getElementById('managementView');      // Jogadores
+const peladaView = document.getElementById('peladaView');              // Peladas
+const championshipView = document.getElementById('championshipView');  // Campeonato (criação/lista)
+const championshipDetailView = document.getElementById('championshipDetailView'); // Detalhes do campeonato (editar times)
+
+// Global variable for championship selected (definida ao abrir detalhe)
+let campeonatoSelecionadoId = null;
+
+// Função para voltar para a view de cards
+function showCardsView() {
+  managementView.classList.add('hidden');
+  peladaView.classList.add('hidden');
+  championshipView.classList.add('hidden');
+  if (championshipDetailView) championshipDetailView.classList.add('hidden');
+  cardsView.classList.remove('hidden');
+}
+
+// =====================================================
+// SIDEBAR FUNCTIONALITY
+// =====================================================
+function toggleSidebar() {
+  sidebar.classList.toggle('-translate-x-full');
+}
+hamburgerBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleSidebar(); });
+document.addEventListener('click', (e) => {
+  if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+    sidebar.classList.add('-translate-x-full');
+  }
+});
+
+// =====================================================
+// MODULE: JOGADORES (CRUD)
+// =====================================================
+// Seleção de elementos para jogadores
 const cardPlayers = document.getElementById('cardPlayers');
 const backBtn = document.getElementById('backBtn');
-
 const toggleFormBtn = document.getElementById('toggleFormBtn');
 const formSection = document.getElementById('formSection');
-
 const searchInput = document.getElementById('searchInput');
 const filterTerBtn = document.getElementById('filterTer');
 const filterQuinBtn = document.getElementById('filterQuin');
 const filterDomBtn = document.getElementById('filterDom');
-
 const playersTableBody = document.getElementById('playersTableBody');
 const playerForm = document.getElementById('playerForm');
 const formTitle = document.getElementById('formTitle');
 const cancelForm = document.getElementById('cancelForm');
-
-// Inputs do formulário
+// Inputs do formulário de jogadores
 const inputPlayerId = document.getElementById('playerId');
 const inputJogador = document.getElementById('inputJogador');
 const inputUsername = document.getElementById('inputUsername');
@@ -38,103 +69,46 @@ const inputAdm = document.getElementById('inputAdm');
 const inputTerca = document.getElementById('inputTerca');
 const inputQuinta = document.getElementById('inputQuinta');
 const inputDomingo = document.getElementById('inputDomingo');
-
-// ===========================================
-// Variáveis para filtros
-// ===========================================
+// Filtros de jogadores
 let filterTer = false, filterQuin = false, filterDom = false;
 
-// ===========================================
-// Navegação entre views
-// ===========================================
 function showManagementView() {
   cardsView.classList.add('hidden');
   managementView.classList.remove('hidden');
   loadPlayers();
 }
-function showCardsView() {
-  managementView.classList.add('hidden');
-  peladaView.classList.add('hidden'); // Adicionado para esconder a view de peladas
-  cardsView.classList.remove('hidden');
-}
 cardPlayers.addEventListener('click', showManagementView);
 backBtn.addEventListener('click', showCardsView);
 
-// ===========================================
-// Lógica para a sidebar
-// ===========================================
-function toggleSidebar() {
-  sidebar.classList.toggle('-translate-x-full');
-}
-hamburgerBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  toggleSidebar();
-});
-document.addEventListener('click', (e) => {
-  if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
-    sidebar.classList.add('-translate-x-full');
-  }
-});
-
-// ===========================================
-// Toggle do formulário (criar/editar)
-// ===========================================
 toggleFormBtn.addEventListener('click', () => {
   formSection.classList.toggle('hidden');
   if (!formSection.classList.contains('hidden')) {
     formTitle.textContent = 'Novo Jogador';
   }
 });
+filterTerBtn.addEventListener('click', () => { filterTer = !filterTer; filterTerBtn.classList.toggle('bg-blue-600', filterTer); loadPlayers(); });
+filterQuinBtn.addEventListener('click', () => { filterQuin = !filterQuin; filterQuinBtn.classList.toggle('bg-blue-600', filterQuin); loadPlayers(); });
+filterDomBtn.addEventListener('click', () => { filterDom = !filterDom; filterDomBtn.classList.toggle('bg-blue-600', filterDom); loadPlayers(); });
+searchInput.addEventListener('input', loadPlayers);
 
-// ===========================================
-// Eventos para filtros
-// ===========================================
-filterTerBtn.addEventListener('click', () => {
-  filterTer = !filterTer;
-  filterTerBtn.classList.toggle('bg-blue-600', filterTer);
-  loadPlayers();
-});
-filterQuinBtn.addEventListener('click', () => {
-  filterQuin = !filterQuin;
-  filterQuinBtn.classList.toggle('bg-blue-600', filterQuin);
-  loadPlayers();
-});
-filterDomBtn.addEventListener('click', () => {
-  filterDom = !filterDom;
-  filterDomBtn.classList.toggle('bg-blue-600', filterDom);
-  loadPlayers();
-});
-
-// ===========================================
-// Função para carregar jogadores e aplicar filtros
-// ===========================================
 async function loadPlayers() {
   const search = searchInput.value.trim().toLowerCase();
-  const { data: players, error } = await supabaseClient
-    .from('jogadores')
-    .select('*')
-    .order('id', { ascending: true });
-  if (error) {
-    console.error('Erro ao carregar jogadores:', error);
-    return;
-  }
-  // Filtra os jogadores no client-side
+  const { data: players, error } = await supabaseClient.from('jogadores').select('*').order('id', { ascending: true });
+  if (error) { console.error('Erro ao carregar jogadores:', error); return; }
   let filtered = players;
   if (search) {
-    filtered = filtered.filter(player => 
-      player.jogador.toLowerCase().includes(search) || 
+    filtered = filtered.filter(player =>
+      player.jogador.toLowerCase().includes(search) ||
       player.cell.includes(search)
     );
   }
   if (filterTer || filterQuin || filterDom) {
     filtered = filtered.filter(player => {
-      return (filterTer ? player.fut_terca : false) || 
-             (filterQuin ? player.fut_quinta : false) || 
+      return (filterTer ? player.fut_terca : false) ||
+             (filterQuin ? player.fut_quinta : false) ||
              (filterDom ? player.fut_domingo : false);
     });
   }
-  
-  // Preenche a tabela
   playersTableBody.innerHTML = '';
   filtered.forEach(player => {
     let peladasArr = [];
@@ -157,9 +131,6 @@ async function loadPlayers() {
   });
 }
 
-// ===========================================
-// Processa o envio do formulário para criar/atualizar jogador
-// ===========================================
 playerForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const jogador = inputJogador.value.trim();
@@ -172,42 +143,20 @@ playerForm.addEventListener('submit', async (e) => {
   
   if (inputPlayerId.value) {
     const id = parseInt(inputPlayerId.value);
-    const { error } = await supabaseClient
-      .from('jogadores')
-      .update({ jogador, username, cell, adm, fut_terca, fut_quinta, fut_domingo })
-      .match({ id });
-    if (error) {
-      alert('Erro ao atualizar jogador');
-      console.error(error);
-    }
+    const { error } = await supabaseClient.from('jogadores').update({ jogador, username, cell, adm, fut_terca, fut_quinta, fut_domingo }).match({ id });
+    if (error) { alert('Erro ao atualizar jogador'); console.error(error); }
   } else {
-    const { error } = await supabaseClient
-      .from('jogadores')
-      .insert([{ jogador, username, cell, adm, fut_terca, fut_quinta, fut_domingo }]);
-    if (error) {
-      alert('Erro ao criar jogador');
-      console.error(error);
-    }
+    const { error } = await supabaseClient.from('jogadores').insert([{ jogador, username, cell, adm, fut_terca, fut_quinta, fut_domingo }]);
+    if (error) { alert('Erro ao criar jogador'); console.error(error); }
   }
   resetForm();
   loadPlayers();
 });
 
-// ===========================================
-// Preenche o formulário para edição
-// ===========================================
 async function editPlayer(id) {
   formSection.classList.remove('hidden');
-  const { data: player, error } = await supabaseClient
-    .from('jogadores')
-    .select('*')
-    .eq('id', id)
-    .single();
-  if (error) {
-    alert('Erro ao carregar jogador para edição');
-    console.error(error);
-    return;
-  }
+  const { data: player, error } = await supabaseClient.from('jogadores').select('*').eq('id', id).single();
+  if (error) { alert('Erro ao carregar jogador para edição'); console.error(error); return; }
   inputPlayerId.value = player.id;
   inputJogador.value = player.jogador;
   inputUsername.value = player.username;
@@ -219,26 +168,13 @@ async function editPlayer(id) {
   formTitle.textContent = 'Editar Jogador';
 }
 
-// ===========================================
-// Deleta um jogador
-// ===========================================
 async function deletePlayer(id) {
   if (!confirm('Tem certeza que deseja deletar este jogador?')) return;
-  const { error } = await supabaseClient
-    .from('jogadores')
-    .delete()
-    .match({ id });
-  if (error) {
-    alert('Erro ao deletar jogador');
-    console.error(error);
-    return;
-  }
+  const { error } = await supabaseClient.from('jogadores').delete().match({ id });
+  if (error) { alert('Erro ao deletar jogador'); console.error(error); return; }
   loadPlayers();
 }
 
-// ===========================================
-// Evento para cancelar e resetar o formulário
-// ===========================================
 cancelForm.addEventListener('click', resetForm);
 function resetForm() {
   inputPlayerId.value = '';
@@ -251,57 +187,31 @@ function resetForm() {
   inputDomingo.checked = false;
   formTitle.textContent = 'Novo Jogador';
 }
-
-// ===========================================
-// Busca de jogadores ao digitar
-// ===========================================
 searchInput.addEventListener('input', loadPlayers);
 
-// ===========================================
-// Atualiza informações do usuário na sidebar
-// ===========================================
+// =====================================================
+// MODULE: Atualizar Sidebar (Usuário)
+// =====================================================
 function updateSidebarUser() {
   const currentUser = window.currentUser || {};
   const userNameSidebar = document.getElementById('userNameSidebar');
   const userAvatarSidebar = document.getElementById('userAvatarSidebar');
   const admOptionSidebar = document.getElementById('admOption');
-  if (currentUser.jogador) {
-    userNameSidebar.textContent = currentUser.jogador;
-  }
-  if (currentUser.email) {
-    const gravatarUrl = `https://www.gravatar.com/avatar/${md5(currentUser.email.trim().toLowerCase())}?d=mp`;
-    userAvatarSidebar.src = gravatarUrl;
-  }
-  if (currentUser.adm) {
-    admOptionSidebar.classList.remove('hidden');
-  }
+  if (currentUser.jogador) { userNameSidebar.textContent = currentUser.jogador; }
+  if (currentUser.email) { const gravatarUrl = `https://www.gravatar.com/avatar/${md5(currentUser.email.trim().toLowerCase())}?d=mp`; userAvatarSidebar.src = gravatarUrl; }
+  if (currentUser.adm) { admOptionSidebar.classList.remove('hidden'); }
 }
 updateSidebarUser();
-
-// ===========================================
-// Dropdown da sidebar (usuário)
-// ===========================================
 const userMenuBtn = document.getElementById('userMenuBtn');
 const userDropdown = document.getElementById('userDropdown');
-userMenuBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  userDropdown.classList.toggle('hidden');
-});
-document.addEventListener('click', () => {
-  userDropdown.classList.add('hidden');
-});
-
-// ===========================================
-// Logout
-// ===========================================
+userMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); userDropdown.classList.toggle('hidden'); });
+document.addEventListener('click', () => { userDropdown.classList.add('hidden'); });
 const logoutOption = document.getElementById('logoutOption');
-logoutOption.addEventListener('click', () => {
-  localStorage.removeItem('user');
-  window.location.href = '../../index.html';
-});
+logoutOption.addEventListener('click', () => { localStorage.removeItem('user'); window.location.href = '../../index.html'; });
 
-// ======= Módulo de Peladas =======
-// Seleção de elementos para a view de peladas
+// =====================================================
+// MODULE: PELADAS
+// =====================================================
 const cardPelada = document.getElementById('cardPelada');
 const peladaView = document.getElementById('peladaView');
 const backPeladaBtn = document.getElementById('backPeladaBtn');
@@ -316,32 +226,18 @@ const peladaTableBody = document.getElementById('peladaTableBody');
 const filterDomPelada = document.getElementById('filterDomPelada');
 const filterTerPelada = document.getElementById('filterTerPelada');
 const filterQuinPelada = document.getElementById('filterQuinPelada');
-
-// Variáveis para os filtros de peladas (renomeadas para evitar conflito)
 let peladaFilterDom = false, peladaFilterTer = false, peladaFilterQuin = false;
-
-// Evento: clique no card "Criar Pelada"
 cardPelada.addEventListener('click', showPeladaView);
-
-// Evento: botão de voltar na view de peladas
 backPeladaBtn.addEventListener('click', showCardsView);
-
-// Função para exibir a view de peladas
 function showPeladaView() {
   cardsView.classList.add('hidden');
   peladaView.classList.remove('hidden');
   loadPeladas();
 }
-
-// Toggle do formulário de pelada
 togglePeladaFormBtn.addEventListener('click', () => {
   peladaFormSection.classList.toggle('hidden');
-  if (!peladaFormSection.classList.contains('hidden')) {
-    peladaFormTitle.textContent = 'Nova Pelada';
-  }
+  if (!peladaFormSection.classList.contains('hidden')) { peladaFormTitle.textContent = 'Nova Pelada'; }
 });
-
-// Evento para cancelar e resetar o formulário de pelada
 const cancelPeladaForm = document.getElementById('cancelPeladaForm');
 cancelPeladaForm.addEventListener('click', resetPeladaForm);
 function resetPeladaForm() {
@@ -349,55 +245,25 @@ function resetPeladaForm() {
   peladaForm.reset();
   peladaFormTitle.textContent = 'Nova Pelada';
 }
-
-// Eventos para filtros de peladas
-filterDomPelada.addEventListener('click', () => {
-  peladaFilterDom = !peladaFilterDom;
-  filterDomPelada.classList.toggle('bg-blue-600', peladaFilterDom);
-  loadPeladas();
-});
-filterTerPelada.addEventListener('click', () => {
-  peladaFilterTer = !peladaFilterTer;
-  filterTerPelada.classList.toggle('bg-blue-600', peladaFilterTer);
-  loadPeladas();
-});
-filterQuinPelada.addEventListener('click', () => {
-  peladaFilterQuin = !peladaFilterQuin;
-  filterQuinPelada.classList.toggle('bg-blue-600', peladaFilterQuin);
-  loadPeladas();
-});
-
-// Função para carregar peladas de acordo com filtros
+filterDomPelada.addEventListener('click', () => { peladaFilterDom = !peladaFilterDom; filterDomPelada.classList.toggle('bg-blue-600', peladaFilterDom); loadPeladas(); });
+filterTerPelada.addEventListener('click', () => { peladaFilterTer = !peladaFilterTer; filterTerPelada.classList.toggle('bg-blue-600', peladaFilterTer); loadPeladas(); });
+filterQuinPelada.addEventListener('click', () => { peladaFilterQuin = !peladaFilterQuin; filterQuinPelada.classList.toggle('bg-blue-600', peladaFilterQuin); loadPeladas(); });
 async function loadPeladas() {
   let results = [];
-  // Função auxiliar para carregar de uma tabela e atribuir o dia
   async function loadFromTable(tableName, diaLabel) {
     const { data, error } = await supabaseClient.from(tableName).select('*');
-    if (!error && data) {
-      data.forEach(record => record.dia = diaLabel);
-      return data;
-    } else {
-      console.error('Erro ao carregar', tableName, error);
-      return [];
-    }
+    if (!error && data) { data.forEach(record => record.dia = diaLabel); return data; } else { console.error('Erro ao carregar', tableName, error); return []; }
   }
-  
-  // Se algum filtro estiver ativo, carregar somente das tabelas filtradas
   if (peladaFilterDom || peladaFilterTer || peladaFilterQuin) {
     if (peladaFilterDom) results = results.concat(await loadFromTable('fut_domingo', 'Domingo'));
     if (peladaFilterTer) results = results.concat(await loadFromTable('fut_terca', 'Terça-Feira'));
     if (peladaFilterQuin) results = results.concat(await loadFromTable('fut_quinta', 'Quinta-Feira'));
   } else {
-    // Caso contrário, carregar de todas as tabelas
     results = results.concat(await loadFromTable('fut_domingo', 'Domingo'));
     results = results.concat(await loadFromTable('fut_terca', 'Terça-Feira'));
     results = results.concat(await loadFromTable('fut_quinta', 'Quinta-Feira'));
   }
-  
-  // Ordena os resultados da mais recente para a mais antiga
   results.sort((a, b) => new Date(a.data_pelada) - new Date(b.data_pelada));
-  
-  // Preenche a tabela
   peladaTableBody.innerHTML = '';
   results.forEach(record => {
     const horaFormatted = record.hora ? record.hora.slice(0,5) : '';
@@ -415,118 +281,67 @@ async function loadPeladas() {
     peladaTableBody.appendChild(row);
   });
 }
-
-// Processa o envio do formulário para criar ou atualizar uma pelada
 peladaForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const peladaDay = document.querySelector('input[name=\"peladaDay\"]:checked').value;
+  const peladaDay = document.querySelector('input[name="peladaDay"]:checked').value;
   const dataPelada = document.getElementById('inputDataPelada').value;
   const horaPelada = document.getElementById('inputHoraPelada').value;
-  
-  // Determina a tabela com base no dia selecionado
   let tableName;
   if (peladaDay === 'dom') tableName = 'fut_domingo';
   else if (peladaDay === 'ter') tableName = 'fut_terca';
   else if (peladaDay === 'quin') tableName = 'fut_quinta';
-  
   if (document.getElementById('peladaId').value) {
     const id = parseInt(document.getElementById('peladaId').value);
-    const { error } = await supabaseClient
-      .from(tableName)
-      .update({ data_pelada: dataPelada, hora: horaPelada })
-      .match({ id });
-    if (error) {
-      alert('Erro ao atualizar pelada');
-      console.error(error);
-    }
+    const { error } = await supabaseClient.from(tableName).update({ data_pelada: dataPelada, hora: horaPelada }).match({ id });
+    if (error) { alert('Erro ao atualizar pelada'); console.error(error); }
   } else {
-    const { error } = await supabaseClient
-      .from(tableName)
-      .insert([{ data_pelada: dataPelada, hora: horaPelada }]);
-    if (error) {
-      alert('Erro ao criar pelada');
-      console.error(error);
-    }
+    const { error } = await supabaseClient.from(tableName).insert([{ data_pelada: dataPelada, hora: horaPelada }]);
+    if (error) { alert('Erro ao criar pelada'); console.error(error); }
   }
   resetPeladaForm();
   loadPeladas();
 });
-
-// Preenche o formulário para edição de pelada
 async function editPelada(id, dia) {
   peladaFormSection.classList.remove('hidden');
   let tableName;
   if (dia === 'Domingo') tableName = 'fut_domingo';
   else if (dia === 'Terça-Feira') tableName = 'fut_terca';
   else if (dia === 'Quinta-Feira') tableName = 'fut_quinta';
-  
-  const { data: pelada, error } = await supabaseClient
-    .from(tableName)
-    .select('*')
-    .eq('id', id)
-    .single();
-  if (error) {
-    alert('Erro ao carregar pelada para edição');
-    console.error(error);
-    return;
-  }
+  const { data: pelada, error } = await supabaseClient.from(tableName).select('*').eq('id', id).single();
+  if (error) { alert('Erro ao carregar pelada para edição'); console.error(error); return; }
   document.getElementById('peladaId').value = pelada.id;
-  // Seleciona o rádio correspondente ao dia (converte o tableName para valor de rádio)
   const radioValue = tableName === 'fut_domingo' ? 'dom' : tableName === 'fut_terca' ? 'ter' : 'quin';
   document.querySelector(`input[name="peladaDay"][value="${radioValue}"]`).checked = true;
   document.getElementById('inputDataPelada').value = pelada.data_pelada;
   document.getElementById('inputHoraPelada').value = pelada.hora.slice(0,5);
   peladaFormTitle.textContent = 'Editar Pelada';
 }
-
-// Deleta uma pelada
 async function deletePelada(id, dia) {
   if (!confirm('Tem certeza que deseja deletar esta pelada?')) return;
   let tableName;
   if (dia === 'Domingo') tableName = 'fut_domingo';
   else if (dia === 'Terça-Feira') tableName = 'fut_terca';
   else if (dia === 'Quinta-Feira') tableName = 'fut_quinta';
-  
-  const { error } = await supabaseClient
-    .from(tableName)
-    .delete()
-    .match({ id });
-  if (error) {
-    alert('Erro ao deletar pelada');
-    console.error(error);
-    return;
-  }
+  const { error } = await supabaseClient.from(tableName).delete().match({ id });
+  if (error) { alert('Erro ao deletar pelada'); console.error(error); return; }
   loadPeladas();
 }
-
-// Função para apagar peladas antigas (2 dias após terem passado)
 async function cleanupOldPeladas() {
-  // Calcula a data de corte: hoje menos 2 dias
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 2);
-  const cutoffStr = cutoff.toISOString().split('T')[0]; // Formato YYYY-MM-DD
-  
-  // Tabelas de peladas
+  const cutoffStr = cutoff.toISOString().split('T')[0];
   const tables = ['fut_domingo', 'fut_terca', 'fut_quinta'];
-  
   for (const table of tables) {
-    const { error } = await supabaseClient
-      .from(table)
-      .delete()
-      .lt('data_pelada', cutoffStr);
-    if (error) {
-      console.error(`Erro ao apagar registros antigos da tabela ${table}:`, error);
-    }
+    const { error } = await supabaseClient.from(table).delete().lt('data_pelada', cutoffStr);
+    if (error) { console.error(`Erro ao apagar registros antigos da tabela ${table}:`, error); }
   }
 }
-
-// Chama a função de limpeza assim que possível (ao carregar a página)
 cleanupOldPeladas();
 
-// ===== Módulo de Campeonato =====
-// Seleção de elementos para a view de campeonatos
+// =====================================================
+// MODULE: Campeonato (Criar e Listar)
+// =====================================================
 const cardChampionship = document.getElementById('cardChampionship');
-const championshipView = document.getElementById('championshipView');
 const backChampBtn = document.getElementById('backChampBtn');
 const toggleChampFormBtn = document.getElementById('toggleChampFormBtn');
 const champFormSection = document.getElementById('champFormSection');
@@ -537,30 +352,22 @@ const inputNumTeams = document.getElementById('inputNumTeams');
 const teamsContainer = document.getElementById('teamsContainer');
 const championshipListContainer = document.getElementById('championshipListContainer');
 
-// Evento: clique no card "Criar e Gerenciar Campeonato"
 cardChampionship.addEventListener('click', () => {
-  // Esconde outras views e exibe a view de campeonato
   cardsView.classList.add('hidden');
   championshipView.classList.remove('hidden');
   loadChampionships();
 });
-
-// Botão de voltar na view de campeonato
 backChampBtn.addEventListener('click', () => {
   championshipView.classList.add('hidden');
   cardsView.classList.remove('hidden');
 });
-
-// Evento para alternar o formulário de campeonato
 toggleChampFormBtn.addEventListener('click', () => {
   champFormSection.classList.toggle('hidden');
   if (!champFormSection.classList.contains('hidden')) {
     champFormTitle.textContent = 'Novo Campeonato';
-    teamsContainer.innerHTML = ''; // Limpa campos de times
+    teamsContainer.innerHTML = '';
   }
 });
-
-// Gera os campos para os nomes dos times conforme a quantidade selecionada
 inputNumTeams.addEventListener('change', () => {
   const num = parseInt(inputNumTeams.value);
   teamsContainer.innerHTML = '';
@@ -571,43 +378,28 @@ inputNumTeams.addEventListener('change', () => {
     teamsContainer.appendChild(div);
   }
 });
-
-// Processa o formulário de criação de campeonato
 champForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const champName = inputChampName.value.trim();
   const numTeams = parseInt(inputNumTeams.value);
   const teamInputs = document.querySelectorAll('.teamName');
   let teams = [];
-  teamInputs.forEach(input => {
-    teams.push(input.value.trim());
-  });
-  // Insere o campeonato na tabela 'campeonatos'
+  teamInputs.forEach(input => { teams.push(input.value.trim()); });
   const { data, error } = await supabaseClient
     .from('campeonatos')
     .insert([{ nome: champName, num_teams: numTeams, teams: teams, created_at: new Date().toISOString() }])
     .single();
-  if (error) {
-    alert('Erro ao criar campeonato');
-    console.error(error);
-    return;
-  }
+  if (error) { alert('Erro ao criar campeonato'); console.error(error); return; }
   alert('Campeonato criado com sucesso!');
-  // Após criar, atualiza a lista
   loadChampionships();
   champFormSection.classList.add('hidden');
 });
-
-// Função para carregar os campeonatos ativos
 async function loadChampionships() {
   const { data: champs, error } = await supabaseClient
     .from('campeonatos')
     .select('*')
     .order('created_at', { ascending: false });
-  if (error) {
-    console.error('Erro ao carregar campeonatos:', error);
-    return;
-  }
+  if (error) { console.error('Erro ao carregar campeonatos:', error); return; }
   championshipListContainer.innerHTML = '';
   champs.forEach(champ => {
     const div = document.createElement('div');
@@ -616,16 +408,106 @@ async function loadChampionships() {
       <h3 class="text-lg font-semibold">${champ.nome}</h3>
       <p class="text-sm">Times: ${champ.teams.join(', ')}</p>
     `;
-    // Ao clicar, abre os detalhes do campeonato (aqui, apenas um placeholder)
-    div.addEventListener('click', () => {
-      openChampionshipDetail(champ);
-    });
+    div.addEventListener('click', () => { openChampionshipDetail(champ); });
     championshipListContainer.appendChild(div);
   });
 }
-
-// Função placeholder para abrir o detalhe do campeonato (para gerenciar times, jogadores, jogos, etc.)
 function openChampionshipDetail(champ) {
   alert('Abrir detalhes do campeonato: ' + champ.nome);
+  // Exibe a view de detalhes do campeonato para editar times
+  if (championshipDetailView) {\n    championshipDetailView.classList.remove('hidden');\n    championshipView.classList.add('hidden');\n  }\n  window.currentChampionship = champ;\n  campeonatoSelecionadoId = champ.id;\n  loadTeamsForChampionshipDetail();\n}
+
+// =====================================================
+// MODULE: Detalhes do Campeonato – Editar Times
+// =====================================================
+// OBS: Certifique-se de que os seguintes elementos existem no HTML da view de detalhes do campeonato:
+// - Botão com id="editTeamsBtnChamp"
+// - Container para os times com id="teamsContainerChamp"
+// - Seção de busca e filtros com id="playerSearchSectionChamp"
+// - Input de busca com id="playerSearchChamp"
+// - Botões de filtro com ids "filterTerBtnChamp", "filterQuinBtnChamp", "filterDomBtnChamp"
+// - Container para listar jogadores disponíveis com id="playersListContainerChamp"
+// - Botão para finalizar edição com id="finalizeTeamsBtnChamp"
+
+const editTeamsBtnChamp = document.getElementById('editTeamsBtnChamp');
+const teamsContainerChamp = document.getElementById('teamsContainerChamp');
+const playerSearchSectionChamp = document.getElementById('playerSearchSectionChamp');
+const playerSearchChamp = document.getElementById('playerSearchChamp');
+const filterTerBtnChamp = document.getElementById('filterTerBtnChamp');
+const filterQuinBtnChamp = document.getElementById('filterQuinBtnChamp');
+const filterDomBtnChamp = document.getElementById('filterDomBtnChamp');
+const playersListContainerChamp = document.getElementById('playersListContainerChamp');
+const finalizeTeamsBtnChamp = document.getElementById('finalizeTeamsBtnChamp');
+
+// Variáveis para os filtros de jogadores no módulo de campeonato
+let champFilterTer = false, champFilterQuin = false, champFilterDom = false;
+
+editTeamsBtnChamp.addEventListener('click', () => {
+  loadTeamsForChampionshipDetail();
+  playerSearchSectionChamp.classList.remove('hidden');
+});
+
+async function loadTeamsForChampionshipDetail() {
+  if (!campeonatoSelecionadoId) return;
+  const { data: teams, error } = await supabaseClient.from('times').select('*').eq('campeonato_id', campeonatoSelecionadoId);
+  if (error) { console.error('Erro ao carregar times do campeonato:', error); return; }
+  teamsContainerChamp.innerHTML = '';
+  teams.forEach(team => {
+    const teamDiv = document.createElement('div');
+    teamDiv.className = "bg-gray-700 p-4 rounded mb-4";
+    teamDiv.innerHTML = `
+      <h3 class="text-lg font-semibold">${team.nome}</h3>
+      <div id="teamPlayersChamp-${team.id}" class="mb-2">Jogadores: ${team.players ? team.players.join(', ') : 'Nenhum'}</div>
+      <button class="bg-blue-600 px-2 py-1 rounded text-sm" onclick="openAddPlayerModalChamp(${team.id})">Adicionar Jogador</button>
+    `;
+    teamsContainerChamp.appendChild(teamDiv);
+  });
 }
 
+function openAddPlayerModalChamp(teamId) {
+  window.currentTeamIdChamp = teamId;
+  loadAvailablePlayersChamp(teamId);
+  playersListContainerChamp.classList.remove('hidden');
+}
+
+async function loadAvailablePlayersChamp(teamId) {
+  const { data: jogadores, error } = await supabaseClient.from('jogadores').select('*');
+  if (error) { console.error('Erro ao carregar jogadores:', error); return; }
+  let filtered = jogadores.filter(j =>
+    j.jogador.toLowerCase().includes(playerSearchChamp.value.trim().toLowerCase()) ||
+    j.cell.includes(playerSearchChamp.value.trim())
+  );
+  if (champFilterTer || champFilterQuin || champFilterDom) {
+    filtered = filtered.filter(j => {
+      return (champFilterTer ? j.fut_terca : false) ||
+             (champFilterQuin ? j.fut_quinta : false) ||
+             (champFilterDom ? j.fut_domingo : false);
+    });
+  }
+  const { data: jogadoresTimes, error: errorJT } = await supabaseClient.from('jogadores_times').select('jogador_id').eq('campeonato_id', campeonatoSelecionadoId);
+  if (errorJT) { console.error('Erro ao carregar jogadores_times:', errorJT); return; }
+  const assignedIds = jogadoresTimes.map(jt => jt.jogador_id);
+  filtered = filtered.filter(j => !assignedIds.includes(j.id));
+  
+  playersListContainerChamp.innerHTML = '';
+  filtered.forEach(j => {
+    const div = document.createElement('div');
+    div.className = "bg-gray-800 p-2 rounded mb-2 flex justify-between items-center";
+    div.innerHTML = `<span>${j.jogador} (${j.cell})</span>
+                     <button class="bg-green-600 px-2 py-1 rounded text-xs" onclick="addPlayerToTeamChamp(${j.id}, ${teamId})">Adicionar</button>`;
+    playersListContainerChamp.appendChild(div);
+  });
+}
+
+async function addPlayerToTeamChamp(jogadorId, teamId) {
+  const { error } = await supabaseClient.from('jogadores_times').insert([{ campeonato_id: campeonatoSelecionadoId, time_id: teamId, jogador_id: jogadorId }]);
+  if (error) { alert('Erro ao adicionar jogador ao time'); console.error(error); } else {\n    alert('Jogador adicionado com sucesso');\n    loadTeamsForChampionshipDetail();\n    playersListContainerChamp.innerHTML = '';\n  }\n}
+
+filterTerBtnChamp.addEventListener('click', () => {\n  champFilterTer = !champFilterTer;\n  filterTerBtnChamp.classList.toggle('bg-blue-600', champFilterTer);\n  if (window.currentTeamIdChamp) loadAvailablePlayersChamp(window.currentTeamIdChamp);\n});
+filterQuinBtnChamp.addEventListener('click', () => {\n  champFilterQuin = !champFilterQuin;\n  filterQuinBtnChamp.classList.toggle('bg-blue-600', champFilterQuin);\n  if (window.currentTeamIdChamp) loadAvailablePlayersChamp(window.currentTeamIdChamp);\n});
+filterDomBtnChamp.addEventListener('click', () => {\n  champFilterDom = !champFilterDom;\n  filterDomBtnChamp.classList.toggle('bg-blue-600', champFilterDom);\n  if (window.currentTeamIdChamp) loadAvailablePlayersChamp(window.currentTeamIdChamp);\n});
+playerSearchChamp.addEventListener('input', () => {\n  if (window.currentTeamIdChamp) loadAvailablePlayersChamp(window.currentTeamIdChamp);\n});
+
+finalizeTeamsBtnChamp.addEventListener('click', async () => {\n  alert('Edição de times finalizada e alterações salvas!');\n  playersListContainerChamp.innerHTML = '';\n});
+
+function obterCampeonatoSelecionado() {\n  return 1;\n}
